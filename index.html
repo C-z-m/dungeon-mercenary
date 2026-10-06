@@ -193,6 +193,33 @@ body{min-height:100vh;background:var(--bg);color:var(--text);font-family:-apple-
 }
 .ult-charge { animation: ultChargeGlow 0.35s ease-in-out infinite; }
 
+/* 骸骨战士还魂 */
+@keyframes reviveBurst {
+  0%   { filter: brightness(1) drop-shadow(0 0 0 #e3b341); transform: scale(1); }
+  30%  { filter: brightness(3) drop-shadow(0 0 20px #e3b341) drop-shadow(0 0 40px #ffd966); transform: scale(1.6); }
+  70%  { filter: brightness(2) drop-shadow(0 0 15px #e3b341); transform: scale(1.3); }
+  100% { filter: brightness(1) drop-shadow(0 0 0 #e3b341); transform: scale(1); }
+}
+.revive-burst { animation: reviveBurst 0.9s ease-out; }
+
+@keyframes reviveTextRise {
+  0%   { opacity: 0; transform: translate(-50%,-50%) scale(0.5); }
+  30%  { opacity: 1; transform: translate(-50%,-50%) scale(1.5); }
+  70%  { opacity: 1; transform: translate(-50%,-50%) scale(1.3); }
+  100% { opacity: 0; transform: translate(-50%,-50%) scale(1.6) translateY(-40px); }
+}
+.revive-text {
+  position: absolute;
+  font-size: 20px;
+  font-weight: 900;
+  color: #ffd966;
+  text-shadow: 0 0 10px #e3b341, 0 0 20px #e3b341, 0 0 30px #ffd966;
+  pointer-events: none;
+  z-index: 30;
+  font-family: sans-serif;
+  white-space: nowrap;
+  animation: reviveTextRise 1.2s ease-out forwards;
+}
 /* BOSS 治疗光环（独立于 box-shadow） */
 @keyframes bossHealGlow {
   0%   { filter: brightness(1) drop-shadow(0 0 0 #3fb950); }
@@ -409,7 +436,7 @@ body{min-height:100vh;background:var(--bg);color:var(--text);font-family:-apple-
 <script>
 // ==================== 配置 ====================
 const CONFIG = {
-  START_GOLD: 1000,
+  START_GOLD: 2000,
   MAX_LEVEL: 15,
   TEAM_LIMIT: 8,           // 队伍上限
   RECRUIT_POOL_SIZE: 6,    // 候选池大小
@@ -869,6 +896,8 @@ function initSkillTree(){
 }
 const EQUIP_SLOT_NAMES = { weapon:'⚔️ 武器', armor:'🛡️ 护甲', trinket:'💎 强化道具' };
 const RARITY_COLORS = { 1:'#8b949e', 2:'#58a6ff', 3:'#a371f7', 4:'#e3b341', 5:'#ff3366', 6:'#ff9933', 7:'#00e5ff', 8:'#ffffff', 9:'#8b1aff' };
+const RARITY_NAMES = { 1:'普通', 2:'优秀', 3:'稀有', 4:'史诗', 5:'传说', 6:'神话', 7:'秘传', 8:'神器', 9:'深渊' };
+const FUSION_COSTS = { 1:200, 2:450, 3:800, 4:1250, 5:2500, 6:6000, 7:15000, 8:50000 };
 
 function getEquipmentBonus(merc){
   const bonus = { atk:0, hp:0, def:0, spd:0 };
@@ -887,7 +916,16 @@ function getEquipmentBonus(merc){
 function pickEquipmentByFloor(slotType, floor){
   const pool = EQUIPMENT_POOL[slotType].filter(e => e.floorMin <= floor);
   if(pool.length === 0) return null;
-  return { ...pool[Math.floor(Math.random() * pool.length)], uid: uid() };
+  // 层数越高，越倾向于刚刚解锁的高档装备
+  // 权重 = 0.85 ^ (当前层 - 装备解锁层)
+  const weights = pool.map(eq => Math.pow(0.85, Math.max(0, floor - eq.floorMin)));
+  const total = weights.reduce((s, w) => s + w, 0);
+  let r = Math.random() * total;
+  for(let i = 0; i < pool.length; i++){
+    r -= weights[i];
+    if(r <= 0) return { ...pool[i], uid: uid() };
+  }
+  return { ...pool[pool.length - 1], uid: uid() };
 }
 
 function getEnemyEquipCount(floor){
@@ -919,18 +957,27 @@ function getEquipSellPrice(eq){
 
 // ==================== 装备合成 ====================
 function getFusionCost(rarity){
-  return { 1:200, 2:600, 3:1800 }[rarity] || 0;
+  return FUSION_COSTS[rarity] || 0;
 }
 
-function tryFusion(rarity){
+function tryFusionByIndices(indices){
+  if(!indices || indices.length !== 3){
+    log('需要选择 3 件装备才能合成。', 'log-fail');
+    return false;
+  }
   const inv = state.inventory || [];
-  // 找该稀有度的所有装备
-  const group = [];
-  inv.forEach((eq, idx) => {
-    if(eq.rarity === rarity) group.push({ eq, idx });
-  });
-  if(group.length < 3){
-    log(`背包里 ${['','普通','优秀','稀有','史诗'][rarity]} 装备不足 3 件，无法合成。`, 'log-fail');
+  const items = indices.map(i => inv[i]).filter(Boolean);
+  if(items.length !== 3){
+    log('选择的装备无效。', 'log-fail');
+    return false;
+  }
+  const rarity = items[0].rarity;
+  if(!items.every(e => e.rarity === rarity)){
+    log('只能合成相同稀有度的装备。', 'log-fail');
+    return false;
+  }
+  if(rarity >= 9){
+    log('深渊装备已是最高档，无法继续合成。', 'log-fail');
     return false;
   }
   const cost = getFusionCost(rarity);
@@ -938,12 +985,7 @@ function tryFusion(rarity){
     log(`合成需要 ${cost} 金币，金币不足！`, 'log-fail');
     return false;
   }
-
-  // 取前 3 件
-  const consume = group.slice(0, 3);
   const newRarity = rarity + 1;
-
-  // 从对应稀有度池里随机挑一件
   const pool = [];
   ['weapon','armor','trinket'].forEach(slot => {
     EQUIPMENT_POOL[slot].forEach(eq => {
@@ -951,29 +993,21 @@ function tryFusion(rarity){
     });
   });
   if(pool.length === 0){
-    log(`没有更高稀有度的装备可合成。`, 'log-fail');
+    log('没有更高稀有度的装备可合成。', 'log-fail');
     return false;
   }
   const picked = pool[Math.floor(Math.random() * pool.length)];
   const newEq = { ...picked, uid: uid() };
-
-  // 扣金币
   state.gold -= cost;
-
-  // 从背包删除（从大索引往小删，防止错位）
-  const toRemove = consume.map(c => c.idx).sort((a, b) => b - a);
-  toRemove.forEach(i => state.inventory.splice(i, 1));
-
-  // 加新装备
+  const sorted = [...indices].sort((a, b) => b - a);
+  sorted.forEach(i => state.inventory.splice(i, 1));
   state.inventory.push(newEq);
-
   saveGame();
   updateGoldDisplay();
-  const consumedNames = consume.map(c => c.eq.name).join(' + ');
+  const consumedNames = items.map(e => e.name).join(' + ');
   log(`🔧 合成成功！${consumedNames} → ${newEq.name}（-${cost} 金币）`, 'log-success');
   return true;
 }
-
 // 稀有度权重：低档多，高档少
 const RARITY_WEIGHTS = { 1:50, 2:30, 3:15, 4:5, 5:1, 6:0.3, 7:0.1, 8:0.03, 9:0.01 };
 
@@ -981,7 +1015,8 @@ function generateShopStock(floor){
   const pool = [];
   ['weapon','armor','trinket'].forEach(slot => {
     EQUIPMENT_POOL[slot].forEach(eq => {
-      if(eq.floorMin <= floor) pool.push(eq);
+      // 商店只卖普通~史诗（1~4 档），传说及以上只能合成或掉落
+      if(eq.floorMin <= floor && eq.rarity <= 4) pool.push(eq);
     });
   });
   if(pool.length === 0) return [];
@@ -1049,6 +1084,7 @@ function createMercenary(job, level){
     enemyType: null,
     enemyIcon: null,
     enemyColor: null,
+    bossType: null,
   };
 }
 
@@ -1397,6 +1433,7 @@ function createBattleUnit(merc, isPlayer, idCounter){
     enemyType: merc.enemyType || null,
     enemyIcon: merc.enemyIcon || null,
     enemyColor: merc.enemyColor || null,
+    bossType: merc.bossType || null,
     skillCd: merc.enemyType ? 2 : 0,
     ultCd2: merc.enemyType ? 5 : 0,
     dotEffects: [],
@@ -1411,6 +1448,7 @@ function generateEnemyTeam(playerTeam, floor){
     const boss = createMercenary('warrior', 8);
     boss.name = '地牢守卫者';
     boss.isTrueBoss = true;
+    boss.bossType = 'guardian';
     boss.maxHp = 1600;
     boss.hp = 1600;
     boss.atk = 45;
@@ -1456,6 +1494,13 @@ function generateEnemyTeam(playerTeam, floor){
     for(let i = 0; i < count; i++){
       const tId = pool[randomInt(0, pool.length - 1)];
       const merc = createEnemyFromTemplate(tId, baseLevel, mult);
+      // 给新敌人也穿装备
+      const eqCount = getEnemyEquipCount(floor);
+      const slots = ['weapon','armor','trinket'].sort(() => Math.random() - 0.5).slice(0, eqCount);
+      slots.forEach(slot => {
+        const eq = pickEquipmentByFloor(slot, floor);
+        if(eq) merc.equipment[slot] = eq;
+      });
       team.push(merc);
     }
     return team;
@@ -1488,6 +1533,13 @@ function generateEnemyTeam(playerTeam, floor){
     for(let i = 0; i < count; i++){
       const tId = pool[randomInt(0, pool.length - 1)];
       const merc = createEnemyFromTemplate(tId, baseLevel, mult);
+      // 给新敌人也穿装备
+      const eqCount = getEnemyEquipCount(floor);
+      const slots = ['weapon','armor','trinket'].sort(() => Math.random() - 0.5).slice(0, eqCount);
+      slots.forEach(slot => {
+        const eq = pickEquipmentByFloor(slot, floor);
+        if(eq) merc.equipment[slot] = eq;
+      });
       team.push(merc);
     }
     return team;
@@ -1510,9 +1562,9 @@ function generateEnemyTeam(playerTeam, floor){
     const merc = createMercenary(job, level);
 
     if(isBoss){
-      merc.maxHp = Math.floor(merc.maxHp * 2.5);
+      merc.maxHp = Math.floor(merc.maxHp * 1.8);
       merc.hp = merc.maxHp;
-      merc.atk = Math.floor(merc.atk * 1.4);
+      merc.atk = Math.floor(merc.atk * 1.2);
     }
 
     // 按层数给敌人随机装备
@@ -1717,9 +1769,32 @@ function applyDamage(target, damage, log){
     // 骸骨战士还魂：一次复活
     if(target.enemyType === 'bone_warrior' && !target.hasRevived){
       target.hasRevived = true;
-      target.hp = Math.floor(target.maxHp * 0.5);
-      pushPopup(target, '还魂', '#e3b341');
-      if(typeof log === 'function') log(`  ✨ ${target.name} 还魂复活！HP 恢复至 ${target.hp}`);
+      target.hp = Math.floor(target.maxHp);
+      // 金色光环
+      const el = document.getElementById('unit-' + target.id);
+      if(el){
+        const c = el.querySelector('.battle-unit-circle');
+        if(c){
+          c.classList.remove('revive-burst');
+          void c.offsetWidth;
+          c.classList.add('revive-burst');
+          setTimeout(() => c.classList.remove('revive-burst'), 950);
+        }
+      }
+      // 大字"还魂"
+      const layer = document.getElementById('battlePopups');
+      if(layer){
+        const CELL = 40;
+        const txt = document.createElement('div');
+        txt.className = 'revive-text';
+        txt.textContent = '✨ 还 魂 ✨';
+        txt.style.left = (target.x * CELL + CELL/2) + 'px';
+        txt.style.top = (target.y * CELL + CELL/2 - 10) + 'px';
+        layer.appendChild(txt);
+        setTimeout(() => { if(txt.isConnected) txt.remove(); }, 1300);
+      }
+      playSound('drop');
+      if(typeof log === 'function') log(`  ✨ ${target.name} 还魂复活！HP 恢复至 ${target.hp}`, 'highlight');
       return damage;
     }
     // 孢子领主死亡爆炸
@@ -1778,8 +1853,8 @@ function attackAI(unit, allUnits, log){
 }
 
 function skillAI(unit, allUnits, log){
-  // ===== 真 BOSS 特殊 AI =====
-  if(unit.isTrueBoss){
+  // ===== 真 BOSS 特殊 AI（只有守卫者用肘飞） =====
+  if(unit.isTrueBoss && unit.bossType === 'guardian'){
     // 1. 每 tick 回血 10
     if(unit.hp < unit.maxHp){
       unit.hp = Math.min(unit.maxHp, unit.hp + 10);
@@ -2025,7 +2100,7 @@ function prepareBattle(){
   const totalLv = enemyTeam.reduce((s, m) => s + m.level, 0);
   const floorMult = 1 + (floor - 1) * 0.15;
   const goldReward = Math.floor((enemyTeam.length * 50 + totalLv * 20) * floorMult);
-  const expReward = Math.floor(totalLv * 30 * floorMult);
+  const expReward = Math.floor(totalLv * 36 * floorMult);
   document.getElementById('battleRewardPreview').innerHTML = `
     预估奖励：<span style="color:var(--gold);">💰 ${goldReward}</span> 金币 · <span style="color:var(--accent);">✨ ${expReward}</span> 经验（平分给存活单位）
   `;
@@ -2121,8 +2196,29 @@ function startBattle(){
           if(u.hp <= 0){
             if(u.enemyType === 'bone_warrior' && !u.hasRevived){
               u.hasRevived = true;
-              u.hp = Math.floor(u.maxHp * 0.5);
-              pushPopup(u, '还魂', '#e3b341');
+              u.hp = Math.floor(u.maxHp);
+              const el = document.getElementById('unit-' + u.id);
+              if(el){
+                const c = el.querySelector('.battle-unit-circle');
+                if(c){
+                  c.classList.remove('revive-burst');
+                  void c.offsetWidth;
+                  c.classList.add('revive-burst');
+                  setTimeout(() => c.classList.remove('revive-burst'), 950);
+                }
+              }
+              const layer = document.getElementById('battlePopups');
+              if(layer){
+                const CELL = 40;
+                const txt = document.createElement('div');
+                txt.className = 'revive-text';
+                txt.textContent = '✨ 还 魂 ✨';
+                txt.style.left = (u.x * CELL + CELL/2) + 'px';
+                txt.style.top = (u.y * CELL + CELL/2 - 10) + 'px';
+                layer.appendChild(txt);
+                setTimeout(() => { if(txt.isConnected) txt.remove(); }, 1300);
+              }
+              playSound('drop');
             } else {
               u.hp = 0;
               u.alive = false;
@@ -2265,7 +2361,7 @@ function finishBattle(allUnits, tick){
   const floor = currentBattle.floor || 1;
   const floorMult = 1 + (floor - 1) * 0.15;
   const goldReward = won ? Math.floor((enemyTeam.length * 50 + totalLv * 20) * floorMult) : 0;
-  const expReward = won ? Math.floor(totalLv * 30 * floorMult) : 0;
+  const expReward = won ? Math.floor(totalLv * 36 * floorMult) : 0;
 
   // 推进层数
   let floorCleared = false;
@@ -2783,7 +2879,7 @@ function openSellModal(onClose){
   panel.style.cssText = 'background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:20px 24px;width:760px;max-width:94vw;max-height:88vh;display:flex;flex-direction:column;';
 
   const selected = new Set();
-  const RARITY_NAMES = { 1:'普通', 2:'优秀', 3:'稀有', 4:'史诗', 5:'传说' };
+  const RARITY_NAMES = { 1:'普通', 2:'优秀', 3:'稀有', 4:'史诗', 5:'传说', 6:'神话', 7:'秘传', 8:'神器', 9:'深渊' };
 
   function refresh(){
     const inv = state.inventory || [];
@@ -2832,6 +2928,10 @@ function openSellModal(onClose){
         <button class="sel-all-btn" data-rarity="3" style="background:var(--card);border:1px solid #a371f7;border-radius:4px;padding:4px 12px;color:#a371f7;cursor:pointer;font-size:0.75rem;font-family:inherit;">全选稀有</button>
         <button class="sel-all-btn" data-rarity="4" style="background:var(--card);border:1px solid #e3b341;border-radius:4px;padding:4px 12px;color:#e3b341;cursor:pointer;font-size:0.75rem;font-family:inherit;">全选史诗</button>
         <button class="sel-all-btn" data-rarity="5" style="background:var(--card);border:1px solid #ff3366;border-radius:4px;padding:4px 12px;color:#ff3366;cursor:pointer;font-size:0.75rem;font-family:inherit;">全选传说</button>
+        <button class="sel-all-btn" data-rarity="6" style="background:var(--card);border:1px solid #ff9933;border-radius:4px;padding:4px 12px;color:#ff9933;cursor:pointer;font-size:0.75rem;font-family:inherit;">全选神话</button>
+        <button class="sel-all-btn" data-rarity="7" style="background:var(--card);border:1px solid #00e5ff;border-radius:4px;padding:4px 12px;color:#00e5ff;cursor:pointer;font-size:0.75rem;font-family:inherit;">全选秘传</button>
+        <button class="sel-all-btn" data-rarity="8" style="background:var(--card);border:1px solid #ffffff;border-radius:4px;padding:4px 12px;color:#ffffff;cursor:pointer;font-size:0.75rem;font-family:inherit;">全选神器</button>
+        <button class="sel-all-btn" data-rarity="9" style="background:var(--card);border:1px solid #8b1aff;border-radius:4px;padding:4px 12px;color:#8b1aff;cursor:pointer;font-size:0.75rem;font-family:inherit;">全选深渊</button>
       </div>
       <div style="flex:1;overflow-y:auto;margin-bottom:12px;max-height:50vh;">${itemsHtml}</div>
       <div style="display:flex;justify-content:space-between;align-items:center;padding-top:12px;border-top:1px solid var(--border);">
@@ -2888,6 +2988,118 @@ function openSellModal(onClose){
       playSound('sell');
       overlay.remove();
       if(onClose) onClose();
+    };
+  }
+
+  overlay.appendChild(panel);
+  document.body.appendChild(overlay);
+  overlay.onclick = (e) => { if(e.target === overlay){ overlay.remove(); if(onClose) onClose(); } };
+  refresh();
+}
+// ==================== 装备合成弹窗 ====================
+function openFusionModal(onClose){
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;justify-content:center;align-items:center;z-index:1100;';
+  const panel = document.createElement('div');
+  panel.style.cssText = 'background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:20px 24px;width:760px;max-width:94vw;max-height:88vh;display:flex;flex-direction:column;';
+
+  const selected = new Set();
+
+  function refresh(){
+    const inv = state.inventory || [];
+    if(inv.length < 3){
+      panel.innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+          <span style="font-size:1.1rem;font-weight:600;">🔧 装备合成</span>
+          <span style="cursor:pointer;color:var(--text-dim);font-size:1.3rem;" id="closeFusionBtn">✕</span>
+        </div>
+        <div style="color:var(--text-dim);text-align:center;padding:40px;font-size:0.9rem;">背包里至少需要 3 件装备</div>
+      `;
+      panel.querySelector('#closeFusionBtn').onclick = () => { overlay.remove(); if(onClose) onClose(); };
+      return;
+    }
+
+    const selectedItems = Array.from(selected).map(i => inv[i]).filter(Boolean);
+    const selRarity = selectedItems.length > 0 ? selectedItems[0].rarity : null;
+    const allSame = selectedItems.length > 0 && selectedItems.every(e => e.rarity === selRarity);
+    const canFuse = selected.size === 3 && allSame && selRarity < 9;
+
+    let infoHtml = '';
+    if(selected.size === 0){
+      infoHtml = '<span style="color:var(--text-dim);">请选择 3 件装备</span>';
+    } else if(!allSame){
+      infoHtml = '<span style="color:#f85149;">⚠️ 只能选同稀有度的装备</span>';
+    } else if(selected.size < 3){
+      infoHtml = `已选 <strong style="color:var(--gold);">${selected.size}</strong> / 3 件 · 还需 ${3 - selected.size} 件`;
+    } else {
+      const cost = getFusionCost(selRarity);
+      const canAfford = state.gold >= cost;
+      const rn = RARITY_NAMES[selRarity];
+      const nn = RARITY_NAMES[selRarity + 1] || '?';
+      infoHtml = `3 件 <span style="color:${RARITY_COLORS[selRarity]};">${rn}</span> → 1 件 <span style="color:${RARITY_COLORS[selRarity + 1]};">${nn}</span> · 消耗 <strong style="color:${canAfford ? 'var(--gold)' : '#f85149'};">💰 ${cost}</strong>`;
+    }
+
+    const itemsHtml = inv.map((eq, idx) => {
+      const isSel = selected.has(idx);
+      const color = RARITY_COLORS[eq.rarity];
+      const lockout = isSel ? false : (selRarity !== null && eq.rarity !== selRarity);
+      return `
+        <div class="fusion-item" data-idx="${idx}" style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:${isSel ? '#2a2318' : 'var(--card)'};border:1px solid ${isSel ? '#e3b341' : 'var(--border)'};border-radius:6px;margin-bottom:6px;cursor:${lockout ? 'not-allowed' : 'pointer'};opacity:${lockout ? 0.3 : 1};">
+          <div style="width:18px;height:18px;border:1px solid ${isSel ? '#e3b341' : 'var(--border)'};border-radius:4px;display:flex;align-items:center;justify-content:center;background:${isSel ? '#e3b341' : 'transparent'};color:#0d1117;font-size:0.7rem;font-weight:900;flex-shrink:0;">${isSel ? '✓' : ''}</div>
+          <span style="font-size:0.85rem;color:${color};font-weight:600;width:100px;">${eq.name}</span>
+          <span style="font-size:0.7rem;color:var(--text-dim);width:56px;">${RARITY_NAMES[eq.rarity] || ''}</span>
+          <span style="font-size:0.75rem;color:var(--text-dim);flex:1;">${formatEquipStats(eq)}</span>
+        </div>
+      `;
+    }).join('');
+
+    panel.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <span style="font-size:1.1rem;font-weight:600;">🔧 装备合成</span>
+        <span style="cursor:pointer;color:var(--text-dim);font-size:1.3rem;" id="closeFusionBtn">✕</span>
+      </div>
+      <div style="color:var(--text-dim);font-size:0.78rem;margin-bottom:8px;">选择 3 件同稀有度装备 → 合成 1 件更高档（产出随机）</div>
+      <div style="flex:1;overflow-y:auto;margin-bottom:12px;max-height:50vh;">${itemsHtml}</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding-top:12px;border-top:1px solid var(--border);gap:12px;flex-wrap:wrap;">
+        <div style="font-size:0.85rem;">${infoHtml}</div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn" id="cancelFusionBtn" style="padding:8px 16px;">取消</button>
+          <button class="btn" id="confirmFusionBtn" ${canFuse ? '' : 'disabled'} style="padding:8px 16px;background:#8f6d1f;border-color:#e3b341;color:#fff;">🔧 合成</button>
+        </div>
+      </div>
+    `;
+
+    panel.querySelectorAll('.fusion-item').forEach(el => {
+      el.onclick = () => {
+        const idx = parseInt(el.dataset.idx);
+        const eq = inv[idx];
+        if(!eq) return;
+        if(selected.has(idx)){
+          selected.delete(idx);
+        } else {
+          if(selected.size >= 3) return;
+          if(selRarity !== null && eq.rarity !== selRarity) return;
+          selected.add(idx);
+        }
+        playSound('click');
+        refresh();
+      };
+    });
+
+    panel.querySelector('#closeFusionBtn').onclick = () => { overlay.remove(); if(onClose) onClose(); };
+    panel.querySelector('#cancelFusionBtn').onclick = () => { overlay.remove(); if(onClose) onClose(); };
+    panel.querySelector('#confirmFusionBtn').onclick = () => {
+      if(selected.size !== 3) return;
+      const cost = getFusionCost(selRarity);
+      const rn = RARITY_NAMES[selRarity];
+      const nn = RARITY_NAMES[selRarity + 1];
+      if(!confirm(`合成 3 件${rn} → 1 件${nn}？\n消耗：${cost} 金币`)) return;
+      const indices = Array.from(selected);
+      if(tryFusionByIndices(indices)){
+        playSound('buy');
+        overlay.remove();
+        if(onClose) onClose();
+      }
     };
   }
 
@@ -2959,18 +3171,11 @@ function openShopModal(){
       </div>
       ${buyHtml}
 
-      <div style="font-size:0.9rem;color:var(--gold);font-weight:600;margin:16px 0 8px 0;">🔧 装备合成（3 件同稀有度 → 1 件更高档）</div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;">
-        <button class="fusion-btn" data-rarity="1" style="background:var(--card);border:1px solid #8b949e;border-radius:6px;padding:8px 14px;color:#8b949e;cursor:pointer;font-size:0.8rem;font-family:inherit;">
-          3 普通 → 1 优秀<br><span style="font-size:0.7rem;color:var(--text-dim);">💰 200</span>
-        </button>
-        <button class="fusion-btn" data-rarity="2" style="background:var(--card);border:1px solid #58a6ff;border-radius:6px;padding:8px 14px;color:#58a6ff;cursor:pointer;font-size:0.8rem;font-family:inherit;">
-          3 优秀 → 1 稀有<br><span style="font-size:0.7rem;color:var(--text-dim);">💰 600</span>
-        </button>
-        <button class="fusion-btn" data-rarity="3" style="background:var(--card);border:1px solid #a371f7;border-radius:6px;padding:8px 14px;color:#a371f7;cursor:pointer;font-size:0.8rem;font-family:inherit;">
-          3 稀有 → 1 史诗<br><span style="font-size:0.7rem;color:var(--text-dim);">💰 1800</span>
-        </button>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin:16px 0 6px 0;">
+        <span style="font-size:0.9rem;color:var(--gold);font-weight:600;">🔧 装备合成</span>
+        ${inv.length >= 3 ? '<button id="openFusionModalBtn" style="background:#8f6d1f;border:1px solid #e3b341;border-radius:4px;padding:4px 14px;color:#fff;cursor:pointer;font-size:0.78rem;font-family:inherit;">🔧 打开合成</button>' : ''}
       </div>
+      <div style="font-size:0.72rem;color:var(--text-dim);margin-bottom:8px;">选择 3 件同稀有度装备 → 合成 1 件更高档</div>
 
       <div style="display:flex;justify-content:space-between;align-items:center;margin:16px 0 8px 0;">
         <span style="font-size:0.9rem;color:var(--danger);font-weight:600;">💸 背包（可卖出）</span>
@@ -3005,19 +3210,12 @@ function openShopModal(){
       };
     }
 
-    // 合成按钮
-    panel.querySelectorAll('.fusion-btn').forEach(btn => {
-      btn.onclick = () => {
-        const rarity = parseInt(btn.dataset.rarity);
-        const rarityName = ['','普通','优秀','稀有'][rarity];
-        const newName = ['','优秀','稀有','史诗'][rarity];
-        const cost = getFusionCost(rarity);
-        if(!confirm(`合成 3 件${rarityName} → 1 件${newName}？\n消耗：${cost} 金币`)) return;
-        if(tryFusion(rarity)){
-          refresh();
-        }
+    const openFusionBtn = panel.querySelector('#openFusionModalBtn');
+    if(openFusionBtn){
+      openFusionBtn.onclick = () => {
+        openFusionModal(() => { refresh(); });
       };
-    });
+    }
     const refreshBtn = panel.querySelector('#refreshShopBtn');
     if(refreshBtn){
       refreshBtn.onclick = () => {
