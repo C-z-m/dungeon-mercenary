@@ -277,6 +277,275 @@ body{min-height:100vh;background:var(--bg);color:var(--text);font-family:-apple-
   50%      { filter: brightness(1); }
 }
 .rapid-hit { animation: rapidHit 0.45s ease-out; }
+
+/* 中毒：绿色闪烁 + 光环 */
+@keyframes poisonHit {
+  0%,100% { filter: brightness(1); }
+  30% { filter: brightness(1.8) hue-rotate(80deg); }
+  60% { filter: brightness(1.4) hue-rotate(60deg); }
+}
+.poison-hit {
+  animation: poisonHit 0.7s ease-out;
+  box-shadow: 0 0 0 3px #4ea85e, 0 0 15px 5px rgba(78,168,94,0.8) !important;
+}
+
+/* 嗜血：血滴飞向施法者 */
+.drain-particle {
+  position: absolute;
+  width: 12px; height: 12px;
+  background: radial-gradient(circle, #fff 0%, #ff3366 40%, #8b1aff 80%, transparent 100%);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 22;
+  transform: translate(-50%,-50%);
+  box-shadow: 0 0 12px #ff3366, 0 0 24px #8b1aff;
+  transition: left 0.65s cubic-bezier(0.5,0,0.8,1), top 0.65s cubic-bezier(0.5,0,0.8,1), opacity 0.65s ease-in;
+  opacity: 1;
+}
+
+/* 召唤：紫色魔法阵（旋转） */
+@keyframes summonCircle {
+  0%   { transform: translate(-50%,-50%) scale(0.2) rotate(0deg); opacity: 0; }
+  30%  { transform: translate(-50%,-50%) scale(1) rotate(180deg); opacity: 1; }
+  70%  { transform: translate(-50%,-50%) scale(1.1) rotate(360deg); opacity: 1; }
+  100% { transform: translate(-50%,-50%) scale(1.6) rotate(540deg); opacity: 0; }
+}
+.summon-circle {
+  position: absolute;
+  width: 50px; height: 50px;
+  border: 3px solid #a371f7;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 24;
+  box-shadow: 0 0 20px #a371f7, inset 0 0 20px #a371f7;
+  animation: summonCircle 0.9s ease-out forwards;
+}
+.summon-circle::before {
+  content: '';
+  position: absolute;
+  inset: 8px;
+  border: 2px dashed #e3b341;
+  border-radius: 50%;
+}
+
+/* 恐惧：紫色波动扩散 */
+@keyframes fearWave {
+  0%   { transform: translate(-50%,-50%) scale(0.5); opacity: 1; border-width: 8px; }
+  100% { transform: translate(-50%,-50%) scale(6);   opacity: 0; border-width: 1px; }
+}
+.fear-wave {
+  position: absolute;
+  width: 60px; height: 60px;
+  border-radius: 50%;
+  border: 6px solid #a371f7;
+  box-shadow: 0 0 30px #a371f7, inset 0 0 30px #a371f7;
+  pointer-events: none;
+  z-index: 25;
+  animation: fearWave 1s ease-out forwards;
+}
+
+/* 恐惧大字 */
+@keyframes fearTextRise {
+  0%   { opacity: 0; transform: translate(-50%,-50%) scale(0.5); }
+  25%  { opacity: 1; transform: translate(-50%,-50%) scale(1.4); }
+  60%  { opacity: 1; transform: translate(-50%,-50%) scale(1.2); }
+  100% { opacity: 0; transform: translate(-50%,-50%) scale(1.8) translateY(-40px); }
+}
+.fear-text {
+  position: absolute;
+  font-size: 20px;
+  font-weight: 900;
+  color: #b28aff;
+  text-shadow: 0 0 12px #a371f7, 0 0 24px #a371f7, 0 0 2px #000;
+  pointer-events: none;
+  z-index: 30;
+  white-space: nowrap;
+  font-family: sans-serif;
+  animation: fearTextRise 1.1s ease-out forwards;
+}
+
+/* 毒雾：绿色雾气扩散 */
+@keyframes poisonFog {
+  0%   { opacity: 0; transform: translate(-50%,-50%) scale(0.3); }
+  30%  { opacity: 0.75; transform: translate(-50%,-50%) scale(1); }
+  70%  { opacity: 0.5; transform: translate(-50%,-50%) scale(1.1); }
+  100% { opacity: 0; transform: translate(-50%,-50%) scale(1.4); }
+}
+.poison-fog {
+  position: absolute;
+  width: 80px; height: 80px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(78,168,94,0.7) 0%, rgba(78,168,94,0.3) 40%, transparent 70%);
+  pointer-events: none;
+  z-index: 23;
+  animation: poisonFog 1.2s ease-out forwards;
+}
+
+/* 孢子爆炸：紫金色扩散 */
+@keyframes sporeBurst {
+  0%   { transform: translate(-50%,-50%) scale(0.3); opacity: 1; }
+  50%  { transform: translate(-50%,-50%) scale(2.5); opacity: 0.9; }
+  100% { transform: translate(-50%,-50%) scale(4); opacity: 0; }
+}
+.spore-burst {
+  position: absolute;
+  width: 50px; height: 50px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #e3b341 0%, #a371f7 40%, transparent 80%);
+  pointer-events: none;
+  z-index: 26;
+  box-shadow: 0 0 40px #a371f7, 0 0 80px #e3b341;
+  animation: sporeBurst 0.9s ease-out forwards;
+}
+
+/* 回血光环：绿色波动 */
+@keyframes healAura {
+  0%   { transform: translate(-50%,-50%) scale(0.5); opacity: 1; border-width: 8px; }
+  100% { transform: translate(-50%,-50%) scale(4);   opacity: 0; border-width: 1px; }
+}
+.heal-aura {
+  position: absolute;
+  width: 50px; height: 50px;
+  border-radius: 50%;
+  border: 6px solid #3fb950;
+  box-shadow: 0 0 30px #3fb950, inset 0 0 30px #3fb950;
+  pointer-events: none;
+  z-index: 25;
+  animation: healAura 1s ease-out forwards;
+}
+
+/* ===== 4区特效 ===== */
+/* 挥翅：橙色冲击波 */
+@keyframes wingBlast {
+  0%   { transform: translate(-50%,-50%) scale(0.3); opacity: 1; border-width: 10px; }
+  100% { transform: translate(-50%,-50%) scale(4);   opacity: 0; border-width: 1px; }
+}
+.wing-blast {
+  position: absolute;
+  width: 60px; height: 60px;
+  border-radius: 50%;
+  border: 8px solid #ff9933;
+  box-shadow: 0 0 30px #ff9933, inset 0 0 30px #ff9933;
+  pointer-events: none;
+  z-index: 25;
+  animation: wingBlast 0.8s ease-out forwards;
+}
+
+/* 喷火：方向火焰柱 */
+@keyframes fireLine {
+  0%   { opacity: 0; transform: scaleX(0.3); }
+  30%  { opacity: 1; transform: scaleX(1); }
+  70%  { opacity: 0.8; transform: scaleX(1); }
+  100% { opacity: 0; transform: scaleX(1.2); }
+}
+.fire-line {
+  position: absolute;
+  height: 20px;
+  background: linear-gradient(90deg, #ff9933 0%, #ff5555 50%, #ff3366 100%);
+  border-radius: 10px;
+  pointer-events: none;
+  z-index: 24;
+  box-shadow: 0 0 20px #ff5555, 0 0 40px #ff3366;
+  animation: fireLine 0.9s ease-out forwards;
+  transform-origin: left center;
+}
+
+/* 龙鳞护盾：绿金龙纹 */
+@keyframes dragonShield {
+  0%,100% { filter: brightness(1) drop-shadow(0 0 0 #3fb950); }
+  30%     { filter: brightness(2.5) drop-shadow(0 0 15px #3fb950) drop-shadow(0 0 30px #e3b341); }
+  70%     { filter: brightness(2) drop-shadow(0 0 12px #3fb950); }
+}
+.dragon-shield { animation: dragonShield 0.9s ease-out; }
+
+/* ===== 5区特效 ===== */
+/* 虚空吞噬：紫色漩涡 */
+@keyframes voidGaze {
+  0%   { transform: translate(-50%,-50%) scale(0.3) rotate(0deg); opacity: 1; }
+  50%  { transform: translate(-50%,-50%) scale(1.2) rotate(180deg); opacity: 1; }
+  100% { transform: translate(-50%,-50%) scale(0.1) rotate(360deg); opacity: 0; }
+}
+.void-gaze {
+  position: absolute;
+  width: 60px; height: 60px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #000 0%, #8b1aff 40%, transparent 80%);
+  border: 3px solid #a371f7;
+  box-shadow: 0 0 30px #8b1aff, inset 0 0 20px #a371f7;
+  pointer-events: none;
+  z-index: 26;
+  animation: voidGaze 0.9s ease-out forwards;
+}
+
+/* 偷属性：紫色光线从目标射向虚空眼 */
+@keyframes voidSiphon {
+  0%   { opacity: 0; transform: translate(-50%,-50%) scaleX(0.2); }
+  30%  { opacity: 1; transform: translate(-50%,-50%) scaleX(1); }
+  70%  { opacity: 1; transform: translate(-50%,-50%) scaleX(1); }
+  100% { opacity: 0; transform: translate(-50%,-50%) scaleX(1.2); }
+}
+.void-siphon {
+  position: absolute;
+  height: 4px;
+  background: linear-gradient(90deg, rgba(163,113,247,0) 0%, #a371f7 40%, #ff3366 100%);
+  box-shadow: 0 0 12px #a371f7, 0 0 24px #ff3366;
+  border-radius: 2px;
+  pointer-events: none;
+  z-index: 22;
+  transform-origin: left center;
+  animation: voidSiphon 0.6s ease-out forwards;
+}
+
+/* 偷属性时目标身上的紫色脉冲 */
+@keyframes voidPulse {
+  0%   { filter: brightness(1); }
+  30%  { filter: brightness(2.2) hue-rotate(-30deg) saturate(2); }
+  70%  { filter: brightness(1.6) hue-rotate(-20deg) saturate(1.5); }
+  100% { filter: brightness(1); }
+}
+.void-pulse {
+  animation: voidPulse 0.7s ease-out;
+  box-shadow: 0 0 0 4px #a371f7, 0 0 20px 8px rgba(163,113,247,0.9) !important;
+}
+
+/* 暗力真伤：红黑闪电 */
+@keyframes abyssDark {
+  0%   { opacity: 0; transform: translate(-50%,-50%) scale(0.3); }
+  30%  { opacity: 1; transform: translate(-50%,-50%) scale(1.5); }
+  70%  { opacity: 0.9; transform: translate(-50%,-50%) scale(1.2); }
+  100% { opacity: 0; transform: translate(-50%,-50%) scale(1.8); }
+}
+.abyss-dark {
+  position: absolute;
+  width: 60px; height: 60px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #ff3366 0%, #8b1aff 40%, #000 80%);
+  border: 4px solid #ff3366;
+  box-shadow: 0 0 40px #8b1aff, 0 0 80px #ff3366;
+  pointer-events: none;
+  z-index: 26;
+  animation: abyssDark 0.7s ease-out forwards;
+}
+
+/* 碎裂：裂痕紫光 */
+@keyframes shatterBurst {
+  0%   { transform: translate(-50%,-50%) scale(0.3); opacity: 1; }
+  40%  { transform: translate(-50%,-50%) scale(1.5); opacity: 1; }
+  100% { transform: translate(-50%,-50%) scale(2.5); opacity: 0; }
+}
+.shatter-burst {
+  position: absolute;
+  width: 60px; height: 60px;
+  background:
+    linear-gradient(45deg, transparent 40%, #ff3366 49%, #ff3366 51%, transparent 60%),
+    linear-gradient(-45deg, transparent 40%, #8b1aff 49%, #8b1aff 51%, transparent 60%),
+    linear-gradient(0deg, transparent 40%, #ff3366 49%, #ff3366 51%, transparent 60%),
+    linear-gradient(90deg, transparent 40%, #8b1aff 49%, #8b1aff 51%, transparent 60%);
+  pointer-events: none;
+  z-index: 26;
+  animation: shatterBurst 0.7s ease-out forwards;
+}
+
 .attack-projectile {
   position: absolute;
   border-radius: 50%;
@@ -557,6 +826,47 @@ const ENEMY_TEMPLATES = {
     job: 'warrior', range: 2, floorMin: 30,
     skillCd: 6, ultCd: 20, isBoss: true,
   },
+  young_dragon: {
+    name: '幼龙', icon: '幼', color: '#ff9933',
+    job: 'warrior', range: 1, floorMin: 31,
+    skillCd: 5, ultCd: 16,
+  },
+  fire_dragon: {
+    name: '炎龙', icon: '炎', color: '#ff5555',
+    job: 'mage', range: 1, floorMin: 32,
+    skillCd: 6, ultCd: 18,
+  },
+  dragon_knight: {
+    name: '龙骑士', icon: '骑', color: '#c9614a',
+    job: 'warrior', range: 1, floorMin: 34,
+    skillCd: 6, ultCd: 20,
+  },
+  void_eye: {
+    name: '虚空眼', icon: '眼', color: '#a371f7',
+    job: 'mage', range: 1, floorMin: 41,
+    skillCd: 5, ultCd: 18,
+  },
+  abyss_apostle: {
+    name: '深渊使徒', icon: '渊', color: '#8b1aff',
+    job: 'mage', range: 99, floorMin: 42,
+    skillCd: 6, ultCd: 20,
+  },
+  chaos_warrior: {
+    name: '混沌武士', icon: '沌', color: '#ff3366',
+    job: 'warrior', range: 1, floorMin: 44,
+    skillCd: 5, ultCd: 14,
+  },
+  void_overlord: {
+    name: '深渊魔王', icon: '魔', color: '#8b1aff',
+    job: 'warrior', range: 2, floorMin: 50,
+    skillCd: 8, ultCd: 16, isBoss: true,
+  },
+  abyss_servant: {
+
+    name: '深渊侍从', icon: '侍', color: '#8b1aff',
+    job: 'warrior', range: 1, floorMin: 50,
+    skillCd: 5, ultCd: 12,
+  },
 };
 
 function createEnemyFromTemplate(templateId, level, mult){
@@ -626,6 +936,44 @@ function summonMinion(caster, allUnits, log){
   log(`  💀 ${caster.name} 召唤了小骷髅！`);
 }
 
+// 按模板召唤敌人（用于深渊魔王召唤仆从）
+function summonEnemyUnit(caster, allUnits, log, templateId, levelOverride){
+  const t = ENEMY_TEMPLATES[templateId];
+  playSummonEffect(caster);
+  const dirs = [[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]];
+  let sx = caster.x, sy = caster.y, found = false;
+  for(const d of dirs){
+    const nx = caster.x + d[0];
+    const ny = caster.y + d[1];
+    if(nx < 0 || nx >= BATTLE_CONFIG.GRID) continue;
+    if(ny < 0 || ny >= BATTLE_CONFIG.GRID) continue;
+    if(allUnits.some(u => u.alive && u.x === nx && u.y === ny)) continue;
+    sx = nx; sy = ny; found = true;
+    break;
+  }
+  if(!found) return;
+  const lvl = (typeof levelOverride === 'number') ? levelOverride : caster.level;
+  const merc = createEnemyFromTemplate(templateId, lvl, 1);
+  const unit = {
+    id: 'E_sum_' + uid(),
+    name: merc.name, job: merc.job, level: merc.level,
+    hp: merc.maxHp, maxHp: merc.maxHp,
+    atk: merc.atk, def: merc.def, spd: merc.spd, range: merc.range,
+    moveCd: 0, moveCdMax: 1, atkCd: 0, atkCdMax: 2,
+    resource: 0, resourceMax: 100, shield: 0, defBuff: 0,
+    critBonus: 0, dodgeBonus: 0,
+    x: sx, y: sy, prevX: sx, prevY: sy, moveStartTime: 0,
+    alive: true, isPlayer: false,
+    enemyType: templateId, enemyIcon: t.icon, enemyColor: t.color,
+    bossType: null, isTrueBoss: false,
+    skillCd: 2, ultCd: 0, ultCd2: 5,
+    dotEffects: [], hasRevived: false,
+  };
+  allUnits.push(unit);
+  currentBattle.enemyTeam.push(unit);
+  log(`  🌑 ${caster.name} 召唤了 ${merc.name}！`);
+}
+
 function enemyAILogic(unit, allUnits, log){
   if(unit.skillCd > 0) unit.skillCd--;
   if(unit.ultCd > 0) unit.ultCd--;
@@ -637,7 +985,9 @@ function enemyAILogic(unit, allUnits, log){
         if(target){
           const d = calcDamage(unit, target, 1.3);
           applyDamage(target, d, log);
+          playAttackEffect(unit, target, { heavy:true });
           knockBackUnit(unit, target, 1);
+          playKnockbackEffect(target);
           pushPopup(target, '击退', '#79c0ff');
           log(`  💀 ${unit.name} 重击 ${target.name}，造成 ${d} 伤害并击退！`);
           unit.skillCd = 6;
@@ -651,18 +1001,21 @@ function enemyAILogic(unit, allUnits, log){
         if(target){
           const d = calcDamage(unit, target, 1.2);
           applyDamage(target, d, log);
+          playAttackEffect(unit, target, { snipe:true });
           if(!target.dotEffects) target.dotEffects = [];
           target.dotEffects.push({ damage: 5, remaining: 5, name: '中毒' });
-          pushPopup(target, '中毒', '#a371f7');
+          playPoisonEffect(target);
+          pushPopup(target, '中毒', '#4ea85e');
           log(`  🏹 ${unit.name} 毒箭 ${target.name}，造成 ${d} 伤害 + 中毒 5 tick`);
           unit.skillCd = 5;
         }
-      } else if(unit.ultCd <= 0){
+      } if(unit.ultCd <= 0){
         const target = findAttackTarget(unit, allUnits);
         if(target){
           const steal = Math.min(10, target.hp);
           target.hp -= steal;
           unit.hp = Math.min(unit.maxHp, unit.hp + steal);
+          playDrainEffect(target, unit);
           pushPopup(unit, '+' + steal, '#3fb950');
           pushPopup(target, '-' + steal, '#ff3366');
           log(`  🩸 ${unit.name} 嗜血箭 ${target.name}，吸血 ${steal}`);
@@ -673,14 +1026,16 @@ function enemyAILogic(unit, allUnits, log){
     }
     case 'necromancer': {
       if(unit.skillCd <= 0){
+        playSummonEffect(unit);
         summonMinion(unit, allUnits, log);
         unit.skillCd = 6;
-      } else if(unit.ultCd <= 0){
+      } if(unit.ultCd <= 0){
         const target = findAttackTarget(unit, allUnits);
         if(target){
           const steal = Math.min(20, target.hp);
           target.hp -= steal;
           unit.hp = Math.min(unit.maxHp, unit.hp + steal);
+          playDrainEffect(target, unit);
           pushPopup(unit, '+' + steal, '#3fb950');
           pushPopup(target, '-' + steal, '#ff3366');
           log(`  🩸 ${unit.name} 嗜血 ${target.name}，吸血 ${steal}`);
@@ -691,15 +1046,17 @@ function enemyAILogic(unit, allUnits, log){
     }
     case 'skeleton_king': {
       if(unit.skillCd <= 0){
+        playSummonEffect(unit);
         summonMinion(unit, allUnits, log);
         summonMinion(unit, allUnits, log);
         unit.skillCd = 8;
-      } else if(unit.ultCd <= 0){
+      } if(unit.ultCd <= 0){
         const targets = allUnits.filter(u => u.alive && u.isPlayer && bDist(unit, u) <= 6);
         if(targets.length > 0){
+          playFearEffect(unit, targets);
           targets.forEach(t => {
             t.atk = Math.floor(t.atk * 0.9);
-            pushPopup(t, 'ATK↓', '#a371f7');
+            pushPopup(t, 'ATK↓', '#b28aff');
           });
           log(`  😱 ${unit.name} 释放【恐惧】！${targets.length} 名佣兵 ATK -10%`);
           unit.ultCd = 18;
@@ -713,19 +1070,24 @@ function enemyAILogic(unit, allUnits, log){
         if(target){
           const d = calcDamage(unit, target, 1.0);
           applyDamage(target, d, log);
+          playAttackEffect(unit, target);
           if(!target.dotEffects) target.dotEffects = [];
           target.dotEffects.push({ damage: 5, remaining: 8, name: '剧毒' });
+          playPoisonEffect(target);
           pushPopup(target, '剧毒', '#4ea85e');
           log(`  🕷️ ${unit.name} 放毒 ${target.name}，造成 ${d} 伤害 + 剧毒 8 tick`);
           unit.skillCd = 5;
         }
-      } else if(unit.ultCd <= 0){
+      } if(unit.ultCd <= 0){
         const target = findAttackTarget(unit, allUnits);
         if(target){
           const d = calcDamage(unit, target, 1.5);
           applyDamage(target, d, log);
+          playAttackEffect(unit, target, { heavy:true });
           if(!target.dotEffects) target.dotEffects = [];
           target.dotEffects.push({ damage: 5, remaining: 8, name: '剧毒' });
+          playPoisonEffect(target);
+          playPoisonFogEffect(target);
           pushPopup(target, '剧毒', '#4ea85e');
           log(`  ☠️ ${unit.name} 释放【剧毒】${target.name}，造成 ${d} 伤害 + 剧毒 8 tick`);
           unit.ultCd = 16;
@@ -749,7 +1111,7 @@ function enemyAILogic(unit, allUnits, log){
           log(`  🧪 ${unit.name} 释放【毒雾】！全场中毒 10 tick`);
           unit.skillCd = 6;
         }
-      } else if(unit.ultCd <= 0){
+      } if(unit.ultCd <= 0){
         // 回血光环
         const targets = allUnits.filter(u => u.alive && !u.isPlayer && bDist(unit, u) <= 6);
         if(targets.length > 0){
@@ -759,6 +1121,222 @@ function enemyAILogic(unit, allUnits, log){
           });
           log(`  💚 ${unit.name} 回血光环！${targets.length} 名敌人恢复 20 HP`);
           unit.ultCd = 20;
+        }
+      }
+      break;
+    }
+    case 'young_dragon': {
+      if(unit.skillCd <= 0){
+        // 飞跃：朝目标方向传送 5 格
+        const target = findAttackTarget(unit, allUnits) || findNearestEnemy(unit, allUnits);
+        if(target){
+          const dx = Math.sign(target.x - unit.x);
+          const dy = Math.sign(target.y - unit.y);
+          let nx = unit.x, ny = unit.y;
+          if(Math.abs(dx) >= Math.abs(dy)){
+            nx = Math.max(0, Math.min(BATTLE_CONFIG.GRID - 1, unit.x + dx * 5));
+          } else {
+            ny = Math.max(0, Math.min(BATTLE_CONFIG.GRID - 1, unit.y + dy * 5));
+          }
+          unit.prevX = unit.x; unit.prevY = unit.y;
+          unit.x = nx; unit.y = ny;
+          unit.moveStartTime = performance.now();
+          pushPopup(unit, '飞跃', '#ff9933');
+          log(`  🐲 ${unit.name} 飞跃 5 格！`);
+          unit.skillCd = 5;
+        }
+      } if(unit.ultCd <= 0){
+        // 挥动翅膀：周围 1 格 30atk
+        const targets = allUnits.filter(u => u.alive && u.isPlayer && bDist(unit, u) <= 1);
+        if(targets.length > 0){
+          playWingBlastEffect(unit);
+          targets.forEach(t => {
+            const d = calcDamage(unit, t, 1.0) + 30;
+            applyDamage(t, d, log);
+            pushPopup(t, '挥翅', '#ff9933');
+          });
+          log(`  🐲 ${unit.name} 挥动翅膀！${targets.length} 名佣兵受到伤害`);
+          unit.ultCd = 16;
+        }
+      }
+      break;
+    }
+    case 'fire_dragon': {
+      if(unit.skillCd <= 0){
+        // 火舞：周围 1 格 DoT
+        const targets = allUnits.filter(u => u.alive && u.isPlayer && bDist(unit, u) <= 1);
+        if(targets.length > 0){
+          playWingBlastEffect(unit);
+          targets.forEach(t => {
+            if(!t.dotEffects) t.dotEffects = [];
+            t.dotEffects.push({ damage: 10, remaining: 8, name: '火焰' });
+            playPoisonFogEffect(t);
+            pushPopup(t, '火舞', '#ff5555');
+          });
+          log(`  🔥 ${unit.name} 火舞！${targets.length} 名佣兵被火焰缠绕`);
+          unit.skillCd = 6;
+        }
+      } if(unit.ultCd <= 0){
+        // 喷火：朝目标方向一条线
+        const target = findAttackTarget(unit, allUnits) || findNearestEnemy(unit, allUnits);
+        if(target){
+          const dx = target.x - unit.x, dy = target.y - unit.y;
+          let dirX = 0, dirY = 0;
+          if(Math.abs(dx) >= Math.abs(dy)) dirX = Math.sign(dx);
+          else dirY = Math.sign(dy);
+          if(dirX === 0 && dirY === 0) dirX = 1;
+          const targets = allUnits.filter(u => {
+            if(!u.alive || !u.isPlayer) return false;
+            if(dirX !== 0){
+              return u.y === unit.y && (u.x - unit.x) * dirX > 0;
+            } else {
+              return u.x === unit.x && (u.y - unit.y) * dirY > 0;
+            }
+          });
+          if(targets.length > 0){
+            const maxDist = Math.max(...targets.map(t => bDist(unit, t)));
+            playFireLineEffect(unit, dirX, dirY, maxDist);
+            targets.forEach(t => {
+              if(!t.dotEffects) t.dotEffects = [];
+              t.dotEffects.push({ damage: 20, remaining: 5, name: '烈焰' });
+              playPoisonFogEffect(t);
+              pushPopup(t, '喷火', '#ff5555');
+            });
+            log(`  🔥 ${unit.name} 喷火！${targets.length} 名佣兵被烈焰灼烧`);
+          }
+          unit.ultCd = 18;
+        }
+      }
+      break;
+    }
+    case 'dragon_knight': {
+      if(unit.skillCd <= 0){
+        const targets = allUnits.filter(u => u.alive && u.isPlayer && bDist(unit, u) <= 2);
+        if(targets.length > 0){
+          targets.forEach(t => {
+            knockBackUnit(unit, t, 2);
+            const d = calcDamage(unit, t, 1.0) + 40;
+            applyDamage(t, d, log);
+            pushPopup(t, '击退', '#c9614a');
+          });
+          log(`  🛡️ ${unit.name} 击退周围 2 格敌人！`);
+          unit.skillCd = 6;
+        }
+      } if(unit.ultCd <= 0){
+        unit.shield = 3;
+        unit.hp = Math.min(unit.maxHp, unit.hp + 50);
+        playDragonShieldEffect(unit);
+        pushPopup(unit, '+50', '#3fb950');
+        log(`  🛡️ ${unit.name} 开启龙鳞护盾（3 层）并回复 50 HP`);
+        unit.ultCd = 20;
+      }
+      break;
+    }
+    case 'void_eye': {
+      // 不普通攻击，技能回血，大招砍属性
+      if(unit.skillCd <= 0){
+        const heal = Math.floor(unit.maxHp * 0.1);
+        unit.hp = Math.min(unit.maxHp, unit.hp + heal);
+        pushPopup(unit, '+' + heal, '#a371f7');
+        log(`  👁️ ${unit.name} 凝视虚空，恢复 ${heal} HP`);
+        unit.skillCd = 5;
+      } if(unit.ultCd <= 0){
+        const targets = allUnits.filter(u => u.alive && u.isPlayer);
+        if(targets.length > 0){
+          const t = targets[randomInt(0, targets.length - 1)];
+          const atkLoss = Math.floor(t.atk * 0.2);
+          const defLoss = Math.floor(t.def * 0.2);
+          t.atk = Math.max(1, t.atk - atkLoss);
+          t.def = Math.max(0, t.def - defLoss);
+          playVoidGazeEffect(t);
+          pushPopup(t, '吞噬', '#8b1aff');
+          log(`  👁️🕳️ ${unit.name} 发动【吞噬】！${t.name} ATK -${atkLoss}, DEF -${defLoss}（本局永久）`);
+          unit.ultCd = 18;
+        }
+      }
+      break;
+    }
+    case 'abyss_apostle': {
+      if(unit.skillCd <= 0){
+        const targets = allUnits.filter(u => u.alive && u.isPlayer);
+        if(targets.length > 0){
+          const t = targets[randomInt(0, targets.length - 1)];
+          const atkLoss = Math.floor(t.atk * 0.05);
+          const defLoss = Math.floor(t.def * 0.05);
+          t.atk = Math.max(1, t.atk - atkLoss);
+          t.def = Math.max(0, t.def - defLoss);
+          pushPopup(t, '深渊', '#8b1aff');
+          log(`  🌑 ${unit.name} 发动【深渊】！${t.name} ATK -${atkLoss}, DEF -${defLoss}（本局永久）`);
+          unit.skillCd = 6;
+        }
+      } if(unit.ultCd <= 0){
+        const target = findAttackTarget(unit, allUnits);
+        if(target){
+          const trueDmg = 60;
+          target.hp -= trueDmg;
+          playAbyssDarkEffect(target);
+          pushPopup(target, '-' + trueDmg, '#ff3366');
+          log(`  💀 ${unit.name} 释放【暗力】！${target.name} 受到 ${trueDmg} 真伤（无视 DEF）`);
+          if(target.hp <= 0){
+            if(typeof tryAncientDragonRevive === 'function' && tryAncientDragonRevive(target, log)){}
+            else { target.hp = 0; target.alive = false; }
+          }
+          unit.ultCd = 20;
+        }
+      }
+      break;
+    }
+    case 'chaos_warrior': {
+      if(unit.skillCd <= 0){
+        const target = findAttackTarget(unit, allUnits);
+        if(target){
+          const d = calcDamage(unit, target, 2.0);
+          applyDamage(target, d, log);
+          playAttackEffect(unit, target, { heavy:true });
+          pushPopup(target, '2×', '#ff3366');
+          log(`  ⚔️ ${unit.name} 释放【双倍斩】！${target.name} 受到 ${d} 伤害`);
+          unit.skillCd = 7;
+        }
+      } if(unit.ultCd <= 0){
+        const targets = allUnits.filter(u => u.alive && u.isPlayer && bDist(unit, u) <= 2);
+        if(targets.length > 0){
+          targets.forEach(t => {
+            const d = calcDamage(unit, t, 1.5);
+            applyDamage(t, d, log);
+            playAttackEffect(unit, t, { heavy:true });
+            pushPopup(t, '1.5×', '#ff3366');
+          });
+          log(`  ⚔️⚔️ ${unit.name} 释放【混沌斩】！周围 2 格 ${targets.length} 名佣兵各受 1.5× 伤害`);
+          unit.ultCd = 14;
+        }
+      }
+      break;
+    }
+    case 'abyss_servant': {
+      if(unit.skillCd <= 0){
+        // 暗影斩：2× 伤害
+        const target = findAttackTarget(unit, allUnits);
+        if(target){
+          const d = calcDamage(unit, target, 2.0);
+          applyDamage(target, d, log);
+          playAttackEffect(unit, target, { heavy:true });
+          pushPopup(target, '暗影斩', '#8b1aff');
+          log(`  🌑 ${unit.name} 释放【暗影斩】！${target.name} 受到 ${d} 伤害`);
+          unit.skillCd = 5;
+        }
+      } if(unit.ultCd <= 0){
+        // 生命汲取：偷 25 HP 回自己
+        const target = findAttackTarget(unit, allUnits);
+        if(target){
+          const steal = Math.min(25, target.hp);
+          target.hp -= steal;
+          unit.hp = Math.min(unit.maxHp, unit.hp + steal);
+          playDrainEffect(target, unit);
+          pushPopup(target, '-' + steal, '#ff3366');
+          pushPopup(unit, '+' + steal, '#3fb950');
+          log(`  🩸 ${unit.name} 发动【生命汲取】！从 ${target.name} 吸取 ${steal} HP`);
+          if(target.hp <= 0){ target.hp = 0; target.alive = false; }
+          unit.ultCd = 12;
         }
       }
       break;
@@ -951,7 +1529,7 @@ function getEquipBuyPrice(eq){
   return r * r * 100;
 }
 function getEquipSellPrice(eq){
-  if(eq.rarity >= 9) return 0; // 深渊不可卖
+  if(eq.rarity >= 9) return 100000;
   return Math.floor(getEquipBuyPrice(eq) * 0.3);
 }
 
@@ -1146,8 +1724,8 @@ function loadGame(){
       stats: data.stats || { wins:0, losses:0, battles:0 },
       refreshCost: data.refreshCost ?? 0,
       tactic: data.tactic || { targeting: 'weakest', style: 'steady' },
-      dungeonFloor: Math.min(30, data.dungeonFloor ?? 1),
-      maxClearedFloor: Math.min(30, data.maxClearedFloor ?? 0),
+      dungeonFloor: Math.min(50, data.dungeonFloor ?? 1),
+      maxClearedFloor: Math.min(50, data.maxClearedFloor ?? 0),
       inventory: data.inventory || [],
       shopStock: data.shopStock || [],
       shopRefreshCost: data.shopRefreshCost ?? 0,
@@ -1294,6 +1872,119 @@ function bossKnockBack(boss, allUnits, log){
 
   return true;
 }
+// ===== 古代巨龙“死亡变身，满血复活” =====
+function tryAncientDragonRevive(unit, log){
+  if(unit.bossType !== 'ancient_dragon') return false;
+  if(unit.bossPhase >= 3) return false;
+
+  unit.bossPhase++;
+  unit.hp = unit.maxHp;
+  unit.alive = true;
+
+  if(unit.bossPhase === 2){
+    unit.atk = Math.floor(unit.atk * 1.15);
+    unit.spd += 3;
+    unit.def = Math.floor(unit.def * 1.1);
+    unit.enemyIcon = '龍';
+    unit.enemyColor = '#ff9933';
+    if(typeof log === 'function') log(`  🐲💥 古代巨龙倒下——但鳞片燃起红光，满血进入【第二阶段】！`, 'highlight');
+  } else if(unit.bossPhase === 3){
+    unit.atk = Math.floor(unit.atk * 1.3);
+    unit.def = Math.floor(unit.def * 1.2);
+    unit.atkCdMax = Math.max(1, Math.floor(unit.atkCdMax * 0.5));
+    unit.skillCd = 0;
+    unit.ultCd = 0;
+    // ★ 第三阶段血量上限 ×1.5，并满血复活
+    unit.maxHp = Math.floor(unit.maxHp * 1.5);
+    unit.hp = unit.maxHp;
+    unit.enemyIcon = '焰';
+    unit.enemyColor = '#ff3366';
+    if(typeof log === 'function') log(`  🐲🔥🔥 古代巨龙再次倒下——狂暴化，满血进入【第三阶段】！HP 上限提升至 ${unit.maxHp}！`, 'highlight');
+  }
+
+  // 视觉特效
+  const el = document.getElementById('unit-' + unit.id);
+  if(el){
+    const c = el.querySelector('.battle-unit-circle');
+    if(c){
+      c.textContent = unit.enemyIcon;
+      c.style.background = unit.enemyColor;
+      c.classList.remove('revive-burst');
+      void c.offsetWidth;
+      c.classList.add('revive-burst');
+      setTimeout(() => c.classList.remove('revive-burst'), 950);
+    }
+  }
+  const wrapper = document.querySelector('.wrapper');
+  if(wrapper){
+    wrapper.classList.remove('screen-shake');
+    void wrapper.offsetWidth;
+    wrapper.classList.add('screen-shake');
+    setTimeout(() => wrapper.classList.remove('screen-shake'), 550);
+  }
+  const layer = document.getElementById('battlePopups');
+  if(layer){
+    const CELL = 40;
+    const txt = document.createElement('div');
+    txt.className = 'revive-text';
+    txt.textContent = unit.bossPhase === 2 ? '💥 第二阶段 💥' : '🔥 第三阶段 🔥';
+    txt.style.left = (unit.x * CELL + CELL/2) + 'px';
+    txt.style.top = (unit.y * CELL + CELL/2 - 10) + 'px';
+    layer.appendChild(txt);
+    setTimeout(() => { if(txt.isConnected) txt.remove(); }, 1300);
+  }
+  if(typeof playSound === 'function') playSound('ult');
+  return true;
+}
+// ===== 深渊魔王：第一次死亡进入阶段2，第二次死亡才真死 =====
+function tryVoidOverlordRevive(unit, log){
+  if(unit.bossType !== 'void_overlord') return false;
+  if(unit.hasRevived) return false;
+
+  unit.hasRevived = true;
+  unit.hp = unit.maxHp;
+  unit.alive = true;
+  unit.atk = Math.floor(unit.atk * 1.15);
+  unit.def = Math.floor(unit.def * 1.15);
+  unit.maxHp = Math.floor(unit.maxHp * 1.15);
+  unit.hp = unit.maxHp;
+  unit.enemyIcon = '魔';
+  unit.enemyColor = '#ff3366';
+  const el = document.getElementById('unit-' + unit.id);
+  if(el){
+    const c = el.querySelector('.battle-unit-circle');
+    if(c){
+      c.textContent = unit.enemyIcon;
+      c.style.background = unit.enemyColor;
+      c.classList.remove('revive-burst');
+      void c.offsetWidth;
+      c.classList.add('revive-burst');
+      setTimeout(() => c.classList.remove('revive-burst'), 950);
+    }
+  }
+  const wrapper = document.querySelector('.wrapper');
+  if(wrapper){
+    wrapper.classList.remove('screen-shake');
+    void wrapper.offsetWidth;
+    wrapper.classList.add('screen-shake');
+    setTimeout(() => wrapper.classList.remove('screen-shake'), 550);
+  }
+  const layer = document.getElementById('battlePopups');
+  if(layer){
+    const CELL = 40;
+    const txt = document.createElement('div');
+    txt.className = 'revive-text';
+    txt.textContent = '💀 深渊觉醒 💀';
+    txt.style.left = (unit.x * CELL + CELL/2) + 'px';
+    txt.style.top = (unit.y * CELL + CELL/2 - 10) + 'px';
+    layer.appendChild(txt);
+    setTimeout(() => { if(txt.isConnected) txt.remove(); }, 1300);
+  }
+  if(typeof playSound === 'function') playSound('ult');
+  if(typeof log === 'function') log(`  💀💀💀 深渊魔王死亡？不——虚空裂缝张开，满血进入【觉醒形态】，全属性 +15%！`, 'highlight');
+  return true;
+}
+
 function playAttackEffect(attacker, target, opts){
   opts = opts || {};
   const layer = document.getElementById('battlePopups');
@@ -1374,6 +2065,306 @@ function playAttackEffect(attacker, target, opts){
 
   setTimeout(() => { if(proj.isConnected) proj.remove(); }, dur + 100);
 }
+
+// ==================== 技能特效辅助函数 ====================
+// 中毒：绿色闪烁
+function playPoisonEffect(target){
+  const el = document.getElementById('unit-' + target.id);
+  if(!el) return;
+  const c = el.querySelector('.battle-unit-circle');
+  if(!c) return;
+  c.classList.remove('poison-hit');
+  void c.offsetWidth;
+  c.classList.add('poison-hit');
+  setTimeout(() => c.classList.remove('poison-hit'), 750);
+}
+
+// 嗜血：从 from 飞向 to 的血滴
+function playDrainEffect(from, to){
+  const layer = document.getElementById('battlePopups');
+  if(!layer) return;
+  const CELL = 40;
+  const fx = from.x * CELL + CELL/2;
+  const fy = from.y * CELL + CELL/2;
+  const tx = to.x * CELL + CELL/2;
+  const ty = to.y * CELL + CELL/2;
+  for(let i = 0; i < 5; i++){
+    setTimeout(() => {
+      const p = document.createElement('div');
+      p.className = 'drain-particle';
+      p.style.left = fx + 'px';
+      p.style.top = fy + 'px';
+      layer.appendChild(p);
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          p.style.left = tx + 'px';
+          p.style.top = ty + 'px';
+          p.style.opacity = '0.2';
+        });
+      });
+      setTimeout(() => { if(p.isConnected) p.remove(); }, 750);
+    }, i * 70);
+  }
+}
+
+// 召唤：紫色魔法阵
+function playSummonEffect(unit){
+  const layer = document.getElementById('battlePopups');
+  if(!layer) return;
+  const CELL = 40;
+  const cx = unit.x * CELL + CELL/2;
+  const cy = unit.y * CELL + CELL/2;
+  const c = document.createElement('div');
+  c.className = 'summon-circle';
+  c.style.left = cx + 'px';
+  c.style.top = cy + 'px';
+  layer.appendChild(c);
+  setTimeout(() => { if(c.isConnected) c.remove(); }, 1000);
+}
+
+// 恐惧：紫色波动 + 大字 + 屏幕震动
+function playFearEffect(boss, targets){
+  const layer = document.getElementById('battlePopups');
+  if(!layer) return;
+  const CELL = 40;
+  const cx = boss.x * CELL + CELL/2;
+  const cy = boss.y * CELL + CELL/2;
+  // 3 圈波动
+  for(let i = 0; i < 3; i++){
+    setTimeout(() => {
+      const w = document.createElement('div');
+      w.className = 'fear-wave';
+      w.style.left = cx + 'px';
+      w.style.top = cy + 'px';
+      layer.appendChild(w);
+      setTimeout(() => { if(w.isConnected) w.remove(); }, 1100);
+    }, i * 120);
+  }
+  // 大字
+  const txt = document.createElement('div');
+  txt.className = 'fear-text';
+  txt.textContent = '😱 恐 惧 😱';
+  txt.style.left = cx + 'px';
+  txt.style.top = (cy - 30) + 'px';
+  layer.appendChild(txt);
+  setTimeout(() => { if(txt.isConnected) txt.remove(); }, 1200);
+  // 屏幕震动
+  const wrapper = document.querySelector('.wrapper');
+  if(wrapper){
+    wrapper.classList.remove('screen-shake');
+    void wrapper.offsetWidth;
+    wrapper.classList.add('screen-shake');
+    setTimeout(() => wrapper.classList.remove('screen-shake'), 550);
+  }
+}
+
+// 击退：红色闪烁
+function playKnockbackEffect(target){
+  const el = document.getElementById('unit-' + target.id);
+  if(!el) return;
+  const c = el.querySelector('.battle-unit-circle');
+  if(!c) return;
+  c.classList.remove('knock-back-hit');
+  void c.offsetWidth;
+  c.classList.add('knock-back-hit');
+  setTimeout(() => c.classList.remove('knock-back-hit'), 720);
+}
+
+// 毒雾：绿色雾团
+function playPoisonFogEffect(target){
+  const layer = document.getElementById('battlePopups');
+  if(!layer) return;
+  const CELL = 40;
+  const cx = target.x * CELL + CELL/2;
+  const cy = target.y * CELL + CELL/2;
+  const f = document.createElement('div');
+  f.className = 'poison-fog';
+  f.style.left = cx + 'px';
+  f.style.top = cy + 'px';
+  layer.appendChild(f);
+  setTimeout(() => { if(f.isConnected) f.remove(); }, 1300);
+}
+
+// 孢子爆炸：紫金色扩散 + 屏幕震动
+function playSporeBurst(target){
+  const layer = document.getElementById('battlePopups');
+  if(!layer) return;
+  const CELL = 40;
+  const cx = target.x * CELL + CELL/2;
+  const cy = target.y * CELL + CELL/2;
+  const b = document.createElement('div');
+  b.className = 'spore-burst';
+  b.style.left = cx + 'px';
+  b.style.top = cy + 'px';
+  layer.appendChild(b);
+  setTimeout(() => { if(b.isConnected) b.remove(); }, 1000);
+  const wrapper = document.querySelector('.wrapper');
+  if(wrapper){
+    wrapper.classList.remove('screen-shake');
+    void wrapper.offsetWidth;
+    wrapper.classList.add('screen-shake');
+    setTimeout(() => wrapper.classList.remove('screen-shake'), 550);
+  }
+}
+
+// 回血光环：绿色波动（2 圈）
+function playHealAura(unit){
+  const layer = document.getElementById('battlePopups');
+  if(!layer) return;
+  const CELL = 40;
+  const cx = unit.x * CELL + CELL/2;
+  const cy = unit.y * CELL + CELL/2;
+  for(let i = 0; i < 2; i++){
+    setTimeout(() => {
+      const a = document.createElement('div');
+      a.className = 'heal-aura';
+      a.style.left = cx + 'px';
+      a.style.top = cy + 'px';
+      layer.appendChild(a);
+      setTimeout(() => { if(a.isConnected) a.remove(); }, 1100);
+    }, i * 150);
+  }
+}
+
+// 挥翅：橙色冲击波（2 圈）
+function playWingBlastEffect(unit){
+  const layer = document.getElementById('battlePopups');
+  if(!layer) return;
+  const CELL = 40;
+  const cx = unit.x * CELL + CELL/2;
+  const cy = unit.y * CELL + CELL/2;
+  for(let i = 0; i < 2; i++){
+    setTimeout(() => {
+      const w = document.createElement('div');
+      w.className = 'wing-blast';
+      w.style.left = cx + 'px';
+      w.style.top = cy + 'px';
+      layer.appendChild(w);
+      setTimeout(() => { if(w.isConnected) w.remove(); }, 900);
+    }, i * 100);
+  }
+}
+
+// 喷火：方向火焰柱
+function playFireLineEffect(unit, dirX, dirY, length){
+  const layer = document.getElementById('battlePopups');
+  if(!layer) return;
+  const CELL = 40;
+  const cx = unit.x * CELL + CELL/2;
+  const cy = unit.y * CELL + CELL/2;
+  const f = document.createElement('div');
+  f.className = 'fire-line';
+  f.style.width = (length * CELL) + 'px';
+  f.style.left = cx + 'px';
+  f.style.top = (cy - 10) + 'px';
+  const angle = dirX !== 0 ? (dirX > 0 ? 0 : 180) : (dirY > 0 ? 90 : -90);
+  f.style.transform = `rotate(${angle}deg)`;
+  layer.appendChild(f);
+  setTimeout(() => { if(f.isConnected) f.remove(); }, 1000);
+}
+
+// 龙鳞护盾：绿金龙纹
+function playDragonShieldEffect(unit){
+  const el = document.getElementById('unit-' + unit.id);
+  if(!el) return;
+  const c = el.querySelector('.battle-unit-circle');
+  if(!c) return;
+  c.classList.remove('dragon-shield');
+  void c.offsetWidth;
+  c.classList.add('dragon-shield');
+  setTimeout(() => c.classList.remove('dragon-shield'), 950);
+}
+
+// 虚空吞噬：紫色漩涡
+function playVoidGazeEffect(target){
+  const layer = document.getElementById('battlePopups');
+  if(!layer) return;
+  const CELL = 40;
+  const cx = target.x * CELL + CELL/2;
+  const cy = target.y * CELL + CELL/2;
+  const v = document.createElement('div');
+  v.className = 'void-gaze';
+  v.style.left = cx + 'px';
+  v.style.top = cy + 'px';
+  layer.appendChild(v);
+  setTimeout(() => { if(v.isConnected) v.remove(); }, 1000);
+}
+
+// 偷属性：目标紫色脉冲 + 光线飞向虚空眼
+function playVoidSiphonEffect(from, to){
+  // 1. 目标紫色脉冲
+  const el = document.getElementById('unit-' + from.id);
+  if(el){
+    const c = el.querySelector('.battle-unit-circle');
+    if(c){
+      c.classList.remove('void-pulse');
+      void c.offsetWidth;
+      c.classList.add('void-pulse');
+      setTimeout(() => c.classList.remove('void-pulse'), 750);
+    }
+  }
+  // 2. 紫色光线（3 道，错开）
+  const layer = document.getElementById('battlePopups');
+  if(!layer) return;
+  const CELL = 40;
+  const fx = from.x * CELL + CELL/2;
+  const fy = from.y * CELL + CELL/2;
+  const tx = to.x * CELL + CELL/2;
+  const ty = to.y * CELL + CELL/2;
+  const dx = tx - fx, dy = ty - fy;
+  const len = Math.sqrt(dx * dx + dy * dy);
+  const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+  for(let i = 0; i < 3; i++){
+    setTimeout(() => {
+      const beam = document.createElement('div');
+      beam.className = 'void-siphon';
+      beam.style.width = len + 'px';
+      beam.style.left = fx + 'px';
+      beam.style.top = (fy - 2) + 'px';
+      beam.style.transform = `rotate(${angle}deg)`;
+      layer.appendChild(beam);
+      setTimeout(() => { if(beam.isConnected) beam.remove(); }, 700);
+    }, i * 80);
+  }
+}
+
+// 暗力真伤：红黑闪电 + 屏幕震动
+function playAbyssDarkEffect(target){
+  const layer = document.getElementById('battlePopups');
+  if(!layer) return;
+  const CELL = 40;
+  const cx = target.x * CELL + CELL/2;
+  const cy = target.y * CELL + CELL/2;
+  const a = document.createElement('div');
+  a.className = 'abyss-dark';
+  a.style.left = cx + 'px';
+  a.style.top = cy + 'px';
+  layer.appendChild(a);
+  setTimeout(() => { if(a.isConnected) a.remove(); }, 800);
+  const wrapper = document.querySelector('.wrapper');
+  if(wrapper){
+    wrapper.classList.remove('screen-shake');
+    void wrapper.offsetWidth;
+    wrapper.classList.add('screen-shake');
+    setTimeout(() => wrapper.classList.remove('screen-shake'), 550);
+  }
+}
+
+// 碎裂：裂痕紫光
+function playShatterEffect(target){
+  const layer = document.getElementById('battlePopups');
+  if(!layer) return;
+  const CELL = 40;
+  const cx = target.x * CELL + CELL/2;
+  const cy = target.y * CELL + CELL/2;
+  const s = document.createElement('div');
+  s.className = 'shatter-burst';
+  s.style.left = cx + 'px';
+  s.style.top = cy + 'px';
+  layer.appendChild(s);
+  setTimeout(() => { if(s.isConnected) s.remove(); }, 800);
+}
+
 // 获取单位的战术（敌人永远用默认）
 function getTacticFor(unit){
   if(!currentBattle || !currentBattle.tactic || !unit.isPlayer){
@@ -1429,6 +2420,9 @@ function createBattleUnit(merc, isPlayer, idCounter){
     ultCd: merc.isTrueBoss ? 3 : 0,
     defBuffTimer: 0,
     defBuffCd: 4,
+    bossPhase: 1,
+    hasPhase2: false,
+    hasPhase3: false,
     // 新敌人专用
     enemyType: merc.enemyType || null,
     enemyIcon: merc.enemyIcon || null,
@@ -1535,6 +2529,101 @@ function generateEnemyTeam(playerTeam, floor){
       const merc = createEnemyFromTemplate(tId, baseLevel, mult);
       // 给新敌人也穿装备
       const eqCount = getEnemyEquipCount(floor);
+      const slots = ['weapon','armor','trinket'].sort(() => Math.random() - 0.5).slice(0, eqCount);
+      slots.forEach(slot => {
+        const eq = pickEquipmentByFloor(slot, floor);
+        if(eq) merc.equipment[slot] = eq;
+      });
+      team.push(merc);
+    }
+    return team;
+  }
+
+  // 第 40 层：古代巨龙 BOSS（三阶段变身）
+  if(floor === 40){
+    const boss = createEnemyFromTemplate('dragon_knight', 12, 1);
+    boss.name = '古代巨龙';
+    boss.enemyIcon = '龙';
+    boss.enemyColor = '#e3b341';
+    boss.enemyType = 'ancient_dragon';
+    boss.isTrueBoss = true;
+    boss.bossType = 'ancient_dragon';
+    boss.maxHp = 8000;
+    boss.hp = 8000;
+    boss.atk = 180;
+    boss.def = 100;
+    boss.spd = 12;
+    boss.range = 1;
+    boss.talents = [];
+    boss.equipment = { weapon:null, armor:null, trinket:null };
+    team.push(boss);
+    return team;
+  }
+
+  // 第四区（31~39 层）：龙巢
+  if(floor >= 31 && floor <= 39){
+    const count = playerTeam.length + 1;                     // 人数跟你不一样
+    const baseLevel = Math.min(13, 12 + Math.floor((floor - 31) / 5));  // Lv.12~13
+    const mult = 2.5 + (floor - 31) * 0.15;              // 温和倍率
+    const pool = ['young_dragon'];
+    if(floor >= 32) pool.push('fire_dragon');
+    if(floor >= 34) pool.push('dragon_knight');
+    if(floor >= 36) pool.push('fire_dragon', 'young_dragon');
+    for(let i = 0; i < count; i++){
+      const tId = pool[randomInt(0, pool.length - 1)];
+      const merc = createEnemyFromTemplate(tId, baseLevel, mult);
+      // ★ 四区敌人也获得 2 个正向天赋（跟玩家一样）
+      merc.talents = rollTalents(2);
+      const eqCount = getEnemyEquipCount(floor);
+      const slots = ['weapon','armor','trinket'].sort(() => Math.random() - 0.5).slice(0, eqCount);
+      slots.forEach(slot => {
+        const eq = pickEquipmentByFloor(slot, floor);
+        if(eq) merc.equipment[slot] = eq;
+      });
+      team.push(merc);
+    }
+    return team;
+  }
+
+  // 第 50 层：深渊魔王 BOSS（死亡一次进入觉醒形态）
+  if(floor === 50){
+    const boss = createEnemyFromTemplate('void_overlord', 15, 1);
+    boss.name = '深渊魔王';
+    boss.enemyIcon = '魔';
+    boss.enemyColor = '#8b1aff';
+    boss.enemyType = 'void_overlord';
+    boss.isTrueBoss = true;
+    boss.bossType = 'void_overlord';
+        boss.maxHp = 12000;
+    boss.hp = 12000;
+    boss.atk = 180;
+    boss.def = 100;
+    boss.spd = 11;
+    boss.range = 2;
+    boss.talents = [];
+    boss.equipment = {
+      weapon:  { ...EQUIPMENT_POOL.weapon.find(e => e.id === 'w_abyss'),  uid: uid() },
+      armor:   { ...EQUIPMENT_POOL.armor.find(e => e.id === 'a_abyss'),   uid: uid() },
+      trinket: { ...EQUIPMENT_POOL.trinket.find(e => e.id === 't_abyss'), uid: uid() },
+    };
+    team.push(boss);
+    return team;
+  }
+
+  // 第五区（41~49 层）：虚空王座
+  if(floor >= 41 && floor <= 49){
+    const count = Math.max(2, playerTeam.length);
+    const baseLevel = Math.min(15, 13 + Math.floor((floor - 41) / 4));
+    const mult = 3.5 + (floor - 41) * 0.2;
+    const pool = ['void_eye'];
+    if(floor >= 42) pool.push('abyss_apostle');
+    if(floor >= 44) pool.push('chaos_warrior');
+    if(floor >= 46) pool.push('chaos_warrior', 'abyss_apostle');
+    for(let i = 0; i < count; i++){
+      const tId = pool[randomInt(0, pool.length - 1)];
+      const merc = createEnemyFromTemplate(tId, baseLevel, mult);
+      merc.talents = rollTalents(2);
+      const eqCount = 3;
       const slots = ['weapon','armor','trinket'].sort(() => Math.random() - 0.5).slice(0, eqCount);
       slots.forEach(slot => {
         const eq = pickEquipmentByFloor(slot, floor);
@@ -1722,6 +2811,12 @@ function moveAI(unit, allUnits){
   const tactic = getTacticFor(unit);
   const style = tactic.style;
 
+  // 虚空眼：主动贴身（要贴身才能偷属性）
+  if(unit.enemyType === 'void_eye'){
+    if(d > 1) stepToward(unit, nearest, allUnits);
+    return;
+  }
+
   if(unit.job === 'warrior'){
     // 战士：三档风格都往前冲（射程 1，不靠近打不到）
     if(d > unit.range) stepToward(unit, nearest, allUnits);
@@ -1737,16 +2832,22 @@ function moveAI(unit, allUnits){
     if(d > maxD) stepToward(unit, nearest, allUnits);
     else if(d < minD) stepSmartKite(unit, nearest, allUnits);
   } else if(unit.job === 'priest'){
-    // 牧师：优先奶队友，否则射程边缘输出
+    // 牧师：优先奶队友；被近身时朝队友方向撤退（让队友当肉盾）
     const allies = allUnits.filter(u => u.alive && u.isPlayer === unit.isPlayer && u !== unit);
     const injured = allies.filter(a => a.hp < a.maxHp * 0.7)
                           .sort((a, b) => a.hp / a.maxHp - b.hp / b.maxHp)[0];
     if(injured && bDist(unit, injured) > 2){
+      // 有队友受伤，靠过去奶
       stepToward(unit, injured, allUnits);
-    } else if(d > unit.range){
-      stepToward(unit, nearest, allUnits);
     } else if(d < 2){
-      stepAway(unit, nearest, allUnits);
+      // 被近身：智能逃跑（远离敌人 + 靠近队友 + 远离边界）
+      if(!stepSmartKite(unit, nearest, allUnits)){
+        // 实在走投无路，退回普通远离
+        stepAway(unit, nearest, allUnits);
+      }
+    } else if(d > unit.range){
+      // 在射程外，靠近输出
+      stepToward(unit, nearest, allUnits);
     }
   }
 }
@@ -1766,9 +2867,25 @@ function applyDamage(target, damage, log){
   pushPopup(target, '-' + damage, '#f85149');
   if(target.job === 'warrior') target.resource = Math.min(target.resourceMax, target.resource + 15);
   if(target.hp <= 0){
-    // 骸骨战士还魂：一次复活
-    if(target.enemyType === 'bone_warrior' && !target.hasRevived){
+    // 古代巨龙：死亡变身，满血复活
+    if(tryAncientDragonRevive(target, log)) return damage;
+    // 深渊魔王：第一次死亡进入觉醒形态
+    if(tryVoidOverlordRevive(target, log)) return damage;
+    // 深渊使徒：一次复活
+    if(target.enemyType === 'abyss_apostle' && !target.hasRevived){
       target.hasRevived = true;
+      target.hp = Math.floor(target.maxHp * 0.6);
+      const el = document.getElementById('unit-' + target.id);
+      if(el){
+        const c = el.querySelector('.battle-unit-circle');
+        if(c){ c.classList.remove('revive-burst'); void c.offsetWidth; c.classList.add('revive-burst'); setTimeout(() => c.classList.remove('revive-burst'), 950); }
+      }
+      if(typeof log === 'function') log(`  🌑 ${target.name} 复活！HP 恢复至 ${target.hp}`, 'highlight');
+      playSound('drop');
+      return damage;
+    }
+    // 骸骨战士还魂：一次复活
+    if(target.enemyType === 'bone_warrior' && !target.hasRevived){      target.hasRevived = true;
       target.hp = Math.floor(target.maxHp);
       // 金色光环
       const el = document.getElementById('unit-' + target.id);
@@ -1800,6 +2917,7 @@ function applyDamage(target, damage, log){
     // 孢子领主死亡爆炸
     if(target.enemyType === 'spore_lord' && !target._exploded){
       target._exploded = true;
+      playSporeBurst(target);
       if(currentBattle){
         const all = [...currentBattle.myTeam, ...currentBattle.enemyTeam];
         all.forEach(u => {
@@ -1818,6 +2936,42 @@ function applyDamage(target, damage, log){
   return damage;
 }
 function attackAI(unit, allUnits, log){
+  // 虚空眼：普攻 = 贴身偷属性（1~2%，战斗内临时，战斗结束自动恢复）
+  if(unit.enemyType === 'void_eye'){
+    const enemies = allUnits.filter(u => u.alive && u.isPlayer && bDist(unit, u) <= 1);
+    if(enemies.length === 0) return;
+    const target = enemies.reduce((a, b) => a.hp <= b.hp ? a : b);
+    // 闪避检查
+    let dodge = 0.05 + target.level * 0.02 + (target.dodgeBonus || 0) / 100;
+    if(target.job !== 'ranger') dodge = (target.dodgeBonus || 0) / 100;
+    if(Math.random() < dodge){
+      log(`  💨 ${target.name} 闪避了 ${unit.name} 的偷取`);
+      pushPopup(target, '闪避', '#79c0ff');
+      playSound('dodge');
+      return;
+    }
+    const stealPct = 1 + Math.random();  // 1.0 ~ 2.0%
+    const atkSteal = Math.max(1, Math.floor(target.atk * stealPct / 100));
+    const defSteal = Math.max(1, Math.floor(target.def * stealPct / 100));
+    target.atk = Math.max(1, target.atk - atkSteal);
+    target.def = Math.max(0, target.def - defSteal);
+    unit.atk += atkSteal;
+    unit.def += defSteal;
+    playVoidSiphonEffect(target, unit);
+    pushPopup(target, `-${atkSteal}ATK`, '#8b1aff');
+    pushPopup(unit, `+${atkSteal}ATK`, '#a371f7');
+    console.log(`[虚空眼偷属性] ${unit.name} → ${target.name}`, {
+      偷取比例: stealPct.toFixed(2) + '%',
+      偷取ATK: atkSteal,
+      偷取DEF: defSteal,
+      目标剩余ATK: target.atk,
+      目标剩余DEF: target.def,
+      虚空眼ATK: unit.atk,
+      虚空眼DEF: unit.def,
+    });
+    playSound('hit');
+    return;
+  }
   const target = findAttackTarget(unit, allUnits);
   if(!target) return;
   // 闪避（游侠基础 5%，人人有天赋加成）
@@ -1845,6 +2999,7 @@ function attackAI(unit, allUnits, log){
   if(target.enemyType === 'spore_lord' && unit.isPlayer && unit.alive){
     unit.hp -= 10;
     pushPopup(unit, '-10', '#a371f7');
+    playPoisonEffect(unit);
     if(!unit.dotEffects) unit.dotEffects = [];
     unit.dotEffects.push({ damage: 5, remaining: 8, name: '孢子毒' });
     log(`  🍄 ${target.name} 反伤！${unit.name} 受到 10 伤害 + 孢子毒 8 tick`);
@@ -1918,9 +3073,165 @@ function skillAI(unit, allUnits, log){
     }
     return;
   }
+  // ===== 古代巨龙三阶段 AI =====
+  if(unit.isTrueBoss && unit.bossType === 'ancient_dragon'){
+    // 每 tick 回血：阶段越高回得越多
+    if(unit.hp < unit.maxHp){
+      let regen = 15;
+      if(unit.bossPhase === 2) regen = 40;
+      else if(unit.bossPhase === 3) regen = 100;
+      unit.hp = Math.min(unit.maxHp, unit.hp + regen);
+    }
+    if(unit.skillCd > 0) unit.skillCd--;
+    if(unit.ultCd > 0) unit.ultCd--;
+
+    // 阶段一：横扫 + 致命重击
+    if(unit.bossPhase === 1){
+      if(unit.skillCd <= 0){
+        const targets = allUnits.filter(u => u.alive && u.isPlayer && bDist(unit, u) <= 2);
+        if(targets.length > 0){
+          targets.forEach(t => {
+            const d = calcDamage(unit, t, 1.0) + 40;
+            applyDamage(t, d, log);
+            pushPopup(t, '横扫', '#e3b341');
+          });
+          log(`  🐲 ${unit.name} 横扫！${targets.length} 名佣兵受到伤害`);
+          unit.skillCd = 5;
+        }
+      } if(unit.ultCd <= 0){
+        const target = findAttackTarget(unit, allUnits) || findNearestEnemy(unit, allUnits);
+        if(target){
+          const targetHp = Math.max(1, Math.floor(target.hp * 0.2));
+          if(target.hp > targetHp){
+            target.hp = targetHp;
+            pushPopup(target, '致命', '#e3b341');
+            log(`  🐲 ${unit.name} 致命重击 ${target.name}！HP 被打到 20%`);
+          }
+          unit.ultCd = 14;
+        }
+      }
+    }
+    // 阶段二：挥翅 + 龙尾烈焰横扫
+    else if(unit.bossPhase === 2){
+      if(unit.skillCd <= 0){
+        const targets = allUnits.filter(u => u.alive && u.isPlayer && bDist(unit, u) <= 4);
+        if(targets.length > 0){
+          targets.forEach(t => {
+            const dx = t.x - unit.x, dy = t.y - unit.y;
+            t.prevX = t.x; t.prevY = t.y;
+            if(Math.abs(dx) >= Math.abs(dy)){
+              t.x = dx > 0 ? BATTLE_CONFIG.GRID - 1 : 0;
+            } else {
+              t.y = dy > 0 ? BATTLE_CONFIG.GRID - 1 : 0;
+            }
+            t.moveStartTime = performance.now();
+            const d = calcDamage(unit, t, 1.0) + 80;
+            applyDamage(t, d, log);
+            pushPopup(t, '挥翅', '#e3b341');
+          });
+          log(`  🐲 ${unit.name} 挥翅！${targets.length} 名佣兵被击退到边界`);
+          unit.skillCd = 5;
+        }
+      } if(unit.ultCd <= 0){
+        const targets = allUnits.filter(u => u.alive && u.isPlayer && bDist(unit, u) <= 4);
+        if(targets.length > 0){
+          targets.forEach(t => {
+            const d = calcDamage(unit, t, 1.0) + 80;
+            applyDamage(t, d, log);
+            if(!t.dotEffects) t.dotEffects = [];
+            t.dotEffects.push({ damage: 10, remaining: 10, name: '龙焰' });
+            pushPopup(t, '龙焰', '#ff5555');
+          });
+          log(`  🐲 ${unit.name} 龙尾烈焰横扫！${targets.length} 名佣兵被点燃`);
+          unit.ultCd = 16;
+        }
+      }
+    }
+    // 阶段三：飞扫 + 烈焰雨
+    else if(unit.bossPhase === 3){
+      if(unit.skillCd <= 0){
+        const targets = allUnits.filter(u => u.alive && u.isPlayer && bDist(unit, u) <= 4);
+        if(targets.length > 0){
+          targets.forEach(t => {
+            const d = calcDamage(unit, t, 1.0) + 100;
+            applyDamage(t, d, log);
+            t.atk = Math.floor(t.atk * 0.9);
+            pushPopup(t, '震慑', '#e3b341');
+          });
+          log(`  🐲 ${unit.name} 飞扫！${targets.length} 名佣兵被震慑`);
+          unit.skillCd = 4;
+        }
+      } if(unit.ultCd <= 0){
+        const targets = allUnits.filter(u => u.alive && u.isPlayer);
+        if(targets.length > 0){
+          targets.forEach(t => {
+            if(!t.dotEffects) t.dotEffects = [];
+            t.dotEffects.push({ damage: 10, remaining: 10, name: '烈焰雨' });
+            pushPopup(t, '烈焰雨', '#ff5555');
+          });
+          log(`  🐲🔥 ${unit.name} 烈焰雨！全场被真伤灼烧`);
+          unit.ultCd = 14;
+        }
+      }
+    }
+    return;
+  }
+  // ===== 深渊魔王 AI =====
+  if(unit.isTrueBoss && unit.bossType === 'void_overlord'){
+    if(unit.skillCd > 0) unit.skillCd--;
+    if(unit.ultCd > 0) unit.ultCd--;
+    // 每 tick 回血：觉醒后回得更多
+    if(unit.hp < unit.maxHp){
+      const regen = unit.hasRevived ? 40 : 15;
+      unit.hp = Math.min(unit.maxHp, unit.hp + regen);
+    }
+    // 技能：召唤 2 个深渊侍从（Lv10，场上敌人少于 5 个时才召唤）
+    if(unit.skillCd <= 0){
+        const aliveEnemies = allUnits.filter(u => u.alive && !u.isPlayer).length;
+        if(aliveEnemies < 5){
+            summonEnemyUnit(unit, allUnits, log, 'abyss_servant', 10);
+            summonEnemyUnit(unit, allUnits, log, 'abyss_servant', 10);
+            log(`  🌑 ${unit.name} 召唤了 2 个深渊侍从（场上 ${aliveEnemies + 2} 敌）`);
+        } else {
+            log(`  🌑 ${unit.name} 想召唤，但虚空已经挤满了……`);
+        }
+        unit.skillCd = 14;
+    }
+    // 大招：全场吞噬 和 碎裂 交替
+    if(unit.ultCd <= 0){
+      unit.ultAlt = (unit.ultAlt || 0) + 1;
+      if(unit.ultAlt % 2 === 1){
+        // 全场吞噬
+        const targets = allUnits.filter(u => u.alive && u.isPlayer);
+        if(targets.length > 0){
+          targets.forEach(t => {
+            if(!t.dotEffects) t.dotEffects = [];
+            t.dotEffects.push({ damage: 15, remaining: 10, name: '吞噬' });
+            pushPopup(t, '吞噬', '#8b1aff');
+          });
+          log(`  🕳️ ${unit.name} 发动【全场吞噬】！全体受到 10 tick 真伤`);
+          unit.ultCd = 24;
+        }
+      } else {
+        // 碎裂：让一个佣兵 HP 只剩 10%
+        const targets = allUnits.filter(u => u.alive && u.isPlayer);
+        if(targets.length > 0){
+          const t = targets[randomInt(0, targets.length - 1)];
+          const newHp = Math.max(1, Math.floor(t.maxHp * 0.1));
+          if(t.hp > newHp){
+            t.hp = newHp;
+            playShatterEffect(t);
+            pushPopup(t, '碎裂', '#ff3366');
+            log(`  💥 ${unit.name} 发动【碎裂】！${t.name} 的 HP 被打到 10%`);
+          }
+          unit.ultCd = 24;
+        }
+      }
+    }
+    return;
+  }
   // ===== 新敌人 AI（第二区） =====
-  if(unit.enemyType && !unit.isPlayer){
-    const savedUltCd = unit.ultCd;
+  if(unit.enemyType && !unit.isPlayer){    const savedUltCd = unit.ultCd;
     unit.ultCd = unit.ultCd2 || 0;
     enemyAILogic(unit, allUnits, log);
     unit.ultCd2 = unit.ultCd;
@@ -1929,20 +3240,8 @@ function skillAI(unit, allUnits, log){
   }
   // ===== 原职业技能 =====
   if(unit.job === 'warrior'){
-    if(unit.resource >= 60){
-      const target = findAttackTarget(unit, allUnits);
-      if(target){
-        const d = calcDamage(unit, target, 1.5);
-        applyDamage(target, d, log);
-        playAttackEffect(unit, target, { skill:true, heavy:true });
-        unit.resource -= 60;
-        log(`  💥 ${unit.name} 重击 ${target.name}，造成 ${d} 伤害${target.alive ? '' : ' 💀'}`);
-      }
-    } else if(unit.hp < unit.maxHp * 0.4 && unit.resource >= 20 && unit.defBuff < 10){
-      unit.defBuff += 5;
-      unit.resource -= 20;
-      log(`  🛡️ ${unit.name} 进入防御姿态（DEF +5）`);
-    }
+    // 战士：三档风格都往前冲（射程 1，不靠近打不到）
+    if(d > unit.range) stepToward(unit, nearest, allUnits);
   } else if(unit.job === 'mage'){
     if(unit.shield === 0 && unit.resource >= 40){
       unit.shield = 2;
@@ -1988,23 +3287,35 @@ function skillAI(unit, allUnits, log){
   } else if(unit.job === 'priest'){
     const allies = allUnits.filter(u => u.alive && u.isPlayer === unit.isPlayer);
     if(allies.length === 0) return;
-    const injured = allies.filter(a => a.hp < a.maxHp * 0.75)
-                          .sort((a, b) => a.hp / a.maxHp - b.hp / b.maxHp)[0];
-        if(injured && unit.resource >= 40){
+    // 候选：所有未满血的友军（含自己）
+    const candidates = allies
+      .filter(a => a.hp < a.maxHp)
+      .sort((a, b) => {
+        const aPct = a.hp / a.maxHp;
+        const bPct = b.hp / b.maxHp;
+        // 百分比差异 > 5% 时，百分比优先（谁残血严重先治谁）
+        if(Math.abs(aPct - bPct) > 0.05) return aPct - bPct;
+        // 百分比接近时，绝对缺失血量多的优先（回血更有意义）
+        return (b.maxHp - b.hp) - (a.maxHp - a.hp);
+      });
+    const target = candidates[0];
+    if(target && unit.resource >= 40){
       const heal = Math.floor(unit.atk * 2.5);
-      injured.hp = Math.min(injured.maxHp, injured.hp + heal);
+      const beforePct = Math.floor(target.hp / target.maxHp * 100);
+      target.hp = Math.min(target.maxHp, target.hp + heal);
+      const afterPct = Math.floor(target.hp / target.maxHp * 100);
       unit.resource -= 40;
-      playAttackEffect(unit, injured, { heal:true });
+      playAttackEffect(unit, target, { heal:true });
       playSound('heal');
-      log(`  💚 ${unit.name} 治疗 ${injured.name}，恢复 ${heal} 生命`);
-      pushPopup(injured, '+' + heal, '#3fb950');
+      log(`  💚 ${unit.name} 治疗 ${target.name}（${beforePct}% → ${afterPct}%，+${heal} HP）`);
+      pushPopup(target, '+' + heal, '#3fb950');
     } else if(unit.resource >= 60){
-      const target = allies.filter(a => a !== unit && a.shield === 0)
-                           .sort((a, b) => a.hp / a.maxHp - b.hp / b.maxHp)[0];
-      if(target){
-        target.shield = 1;
+      const shieldTarget = allies.filter(a => a !== unit && a.shield === 0)
+                                 .sort((a, b) => a.hp / a.maxHp - b.hp / b.maxHp)[0];
+      if(shieldTarget){
+        shieldTarget.shield = 1;
         unit.resource -= 60;
-        log(`  🌟 ${unit.name} 为 ${target.name} 施加神圣护盾`);
+        log(`  🌟 ${unit.name} 为 ${shieldTarget.name} 施加神圣护盾`);
       }
     }
   }
@@ -2057,38 +3368,62 @@ function prepareBattle(){
   const isZone2 = floor >= 11 && floor <= 19;
   const isZone3Boss = floor === 30;
   const isZone3 = floor >= 21 && floor <= 29;
-  if(isZone3Boss){
-    infoEl.innerHTML = `<span>🧪 第 30 层 · 毒沼巨魔</span><span style="color:var(--text-dim);font-size:0.8rem;font-weight:400;">已通关 ${state.maxClearedFloor} / 30 层</span>`;
+  const isZone4Boss = floor === 40;
+  const isZone4 = floor >= 31 && floor <= 39;
+  const isZone5Boss = floor === 50;
+  const isZone5 = floor >= 41 && floor <= 49;
+  if(isZone5Boss){
+    infoEl.innerHTML = `<span>💀 第 50 层 · 深渊魔王</span><span style="color:var(--text-dim);font-size:0.8rem;font-weight:400;">已通关 ${state.maxClearedFloor} / 50 层</span>`;
+    infoEl.style.borderColor = '#8b1aff';
+    infoEl.style.background = 'linear-gradient(90deg,var(--card),#1a0a2e)';
+    infoEl.style.color = '#b28aff';
+  } else if(isZone5){
+    infoEl.innerHTML = `<span>💀 第五区 · 虚空王座 · 第 ${floor} 层</span><span style="color:var(--text-dim);font-size:0.8rem;font-weight:400;">已通关 ${state.maxClearedFloor} / 50 层</span>`;
+    infoEl.style.borderColor = '#a371f7';
+    infoEl.style.background = 'linear-gradient(90deg,var(--card),#1f0a3a)';
+    infoEl.style.color = '#b28aff';
+  } else if(isZone4Boss){
+    infoEl.innerHTML = `<span>🐲 第 40 层 · 古代巨龙</span><span style="color:var(--text-dim);font-size:0.8rem;font-weight:400;">已通关 ${state.maxClearedFloor} / 50 层</span>`;
+    infoEl.style.borderColor = '#e3b341';
+    infoEl.style.background = 'linear-gradient(90deg,var(--card),#3a2a10)';
+    infoEl.style.color = '#ffd966';
+  } else if(isZone4){
+    infoEl.innerHTML = `<span>🐲 第四区 · 龙巢 · 第 ${floor} 层</span><span style="color:var(--text-dim);font-size:0.8rem;font-weight:400;">已通关 ${state.maxClearedFloor} / 50 层</span>`;
+    infoEl.style.borderColor = '#ff9933';
+    infoEl.style.background = 'linear-gradient(90deg,var(--card),#3a1f0f)';
+    infoEl.style.color = '#ff9933';
+  } else if(isZone3Boss){
+    infoEl.innerHTML = `<span>🧪 第 30 层 · 毒沼巨魔</span><span style="color:var(--text-dim);font-size:0.8rem;font-weight:400;">已通关 ${state.maxClearedFloor} / 50 层</span>`;
     infoEl.style.borderColor = '#4ea85e';
     infoEl.style.background = 'linear-gradient(90deg,var(--card),#0f2e1a)';
     infoEl.style.color = '#6bff8f';
   } else if(isZone3){
-    infoEl.innerHTML = `<span>🧪 第三区 · 毒雾深渊 · 第 ${floor} 层</span><span style="color:var(--text-dim);font-size:0.8rem;font-weight:400;">已通关 ${state.maxClearedFloor} / 30 层</span>`;
+    infoEl.innerHTML = `<span>🧪 第三区 · 毒雾深渊 · 第 ${floor} 层</span><span style="color:var(--text-dim);font-size:0.8rem;font-weight:400;">已通关 ${state.maxClearedFloor} / 50 层</span>`;
     infoEl.style.borderColor = '#4ea85e';
     infoEl.style.background = 'linear-gradient(90deg,var(--card),#1a3a1f)';
     infoEl.style.color = '#6bff8f';
   } else if(isZone2Boss){
-    infoEl.innerHTML = `<span>💀 第 20 层 · 尸骨之王</span><span style="color:var(--text-dim);font-size:0.8rem;font-weight:400;">已通关 ${state.maxClearedFloor} / 30 层</span>`;
+    infoEl.innerHTML = `<span>💀 第 20 层 · 尸骨之王</span><span style="color:var(--text-dim);font-size:0.8rem;font-weight:400;">已通关 ${state.maxClearedFloor} / 50 层</span>`;
     infoEl.style.borderColor = '#e3b341';
     infoEl.style.background = 'linear-gradient(90deg,var(--card),#3a2a10)';
     infoEl.style.color = '#ffd966';
   } else if(isZone2){
-    infoEl.innerHTML = `<span>💀 第二区 · 尸骨走廊 · 第 ${floor} 层</span><span style="color:var(--text-dim);font-size:0.8rem;font-weight:400;">已通关 ${state.maxClearedFloor} / 20 层</span>`;
+    infoEl.innerHTML = `<span>💀 第二区 · 尸骨走廊 · 第 ${floor} 层</span><span style="color:var(--text-dim);font-size:0.8rem;font-weight:400;">已通关 ${state.maxClearedFloor} / 50 层</span>`;
     infoEl.style.borderColor = '#8b949e';
     infoEl.style.background = 'linear-gradient(90deg,var(--card),#2a2a2a)';
     infoEl.style.color = '#c9d1d9';
   } else if(isZone1Boss){
-    infoEl.innerHTML = `<span>💀 第 10 层 · 地牢守卫者</span><span style="color:var(--text-dim);font-size:0.8rem;font-weight:400;">已通关 ${state.maxClearedFloor} / 20 层</span>`;
+    infoEl.innerHTML = `<span>💀 第 10 层 · 地牢守卫者</span><span style="color:var(--text-dim);font-size:0.8rem;font-weight:400;">已通关 ${state.maxClearedFloor} / 50 层</span>`;
     infoEl.style.borderColor = '#a371f7';
     infoEl.style.background = 'linear-gradient(90deg,var(--card),#2a103a)';
     infoEl.style.color = '#b28aff';
   } else if(isZone1Elite){
-    infoEl.innerHTML = `<span>👑 第 9 层 · 精英战</span><span style="color:var(--text-dim);font-size:0.8rem;font-weight:400;">已通关 ${state.maxClearedFloor} / 20 层</span>`;
+    infoEl.innerHTML = `<span>👑 第 9 层 · 精英战</span><span style="color:var(--text-dim);font-size:0.8rem;font-weight:400;">已通关 ${state.maxClearedFloor} / 50 层</span>`;
     infoEl.style.borderColor = '#f85149';
     infoEl.style.background = 'linear-gradient(90deg,var(--card),#3a1010)';
     infoEl.style.color = '#ff7b72';
   } else {
-    infoEl.innerHTML = `<span>🏰 地牢 · 第 ${floor} 层</span><span style="color:var(--text-dim);font-size:0.8rem;font-weight:400;">已通关 ${state.maxClearedFloor} / 20 层</span>`;
+    infoEl.innerHTML = `<span>🏰 地牢 · 第 ${floor} 层</span><span style="color:var(--text-dim);font-size:0.8rem;font-weight:400;">已通关 ${state.maxClearedFloor} / 50 层</span>`;
     infoEl.style.borderColor = 'var(--gold)';
     infoEl.style.background = 'linear-gradient(90deg,var(--card),#2a1a1a)';
     infoEl.style.color = 'var(--gold)';
@@ -2194,6 +3529,17 @@ function startBattle(){
           pushPopup(u, '-' + dot.damage, '#a371f7');
           dot.remaining--;
           if(u.hp <= 0){
+            if(tryAncientDragonRevive(u, appendLog)){
+              return dot.remaining > 0;
+            }
+            if(tryVoidOverlordRevive(u, appendLog)){
+              return dot.remaining > 0;
+            }
+            if(u.enemyType === 'abyss_apostle' && !u.hasRevived){
+              u.hasRevived = true;
+              u.hp = Math.floor(u.maxHp * 0.6);
+              return dot.remaining > 0;
+            }
             if(u.enemyType === 'bone_warrior' && !u.hasRevived){
               u.hasRevived = true;
               u.hp = Math.floor(u.maxHp);
@@ -2369,11 +3715,13 @@ function finishBattle(allUnits, tick){
   if(won && floor === state.dungeonFloor){
     floorCleared = true;
     if(floor > state.maxClearedFloor) state.maxClearedFloor = floor;
-    if(floor < 30){
+    if(floor < 50){
       state.dungeonFloor = floor + 1;
     } else {
       dungeonCompleted = true;
     }
+    // ★ 通关一层，商店下次刷新免费
+    state.shopRefreshCost = 0;
   }
 
   // 计算掉落（每件装备独立 40% 掉率）
@@ -2449,6 +3797,10 @@ function finishBattle(allUnits, tick){
         html += `<div style="font-size:1.1rem;color:var(--gold);text-align:center;margin:4px 0 10px 0;text-shadow:0 0 10px #e3b341;">💀 恭喜！击败尸骨之王！第二区通关！</div>`;
       } else if(floor === 30){
         html += `<div style="font-size:1.1rem;color:#6bff8f;text-align:center;margin:4px 0 10px 0;text-shadow:0 0 10px #4ea85e;">🧪 恭喜！击败毒沼巨魔！第三区通关！</div>`;
+      } else if(floor === 40){
+        html += `<div style="font-size:1.1rem;color:#ff9933;text-align:center;margin:4px 0 10px 0;text-shadow:0 0 10px #ff9933;">🐲 恭喜！击败古代巨龙！第四区通关！</div>`;
+      } else if(floor === 50){
+        html += `<div style="font-size:1.2rem;color:#b28aff;text-align:center;margin:4px 0 10px 0;text-shadow:0 0 14px #8b1aff;">💀👑 恭喜！击败深渊魔王！你已通关整个地牢 50 层！</div>`;
       }
     } else if(floorCleared){
       html += `<div style="font-size:0.9rem;color:var(--gold);text-align:center;margin:4px 0 10px 0;">🏆 第 ${floor} 层通关 → 前往第 ${state.dungeonFloor} 层</div>`;
@@ -3514,7 +4866,7 @@ if(state.soundEnabled === false){
 }
 log('欢迎来到地牢佣兵团！', 'log-gold');
 log('开发者：ZIYIZ Studio');
-log('从第 1 层开始，一路打到第 10 层 BOSS「地牢守卫者」。祝你好运，团长。');
+log('从第 1 层开始，一路打到第 50 层 BOSS「地牢守卫者」。祝你好运，团长。');
 </script>
 </body>
 </html>
