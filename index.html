@@ -3240,8 +3240,20 @@ function skillAI(unit, allUnits, log){
   }
   // ===== 原职业技能 =====
   if(unit.job === 'warrior'){
-    // 战士：三档风格都往前冲（射程 1，不靠近打不到）
-    if(d > unit.range) stepToward(unit, nearest, allUnits);
+    if(unit.resource >= 60){
+      const target = findAttackTarget(unit, allUnits);
+      if(target){
+        const d = calcDamage(unit, target, 1.5);
+        applyDamage(target, d, log);
+        playAttackEffect(unit, target, { skill:true, heavy:true });
+        unit.resource -= 60;
+        log(`  💥 ${unit.name} 重击 ${target.name}，造成 ${d} 伤害${target.alive ? '' : ' 💀'}`);
+      }
+    } else if(unit.hp < unit.maxHp * 0.4 && unit.resource >= 20 && unit.defBuff < 10){
+      unit.defBuff += 5;
+      unit.resource -= 20;
+      log(`  🛡️ ${unit.name} 进入防御姿态（DEF +5）`);
+    }
   } else if(unit.job === 'mage'){
     if(unit.shield === 0 && unit.resource >= 40){
       unit.shield = 2;
